@@ -4,7 +4,7 @@ on:
   push:
     branches: [ main ]
 
-# so only one deploy runs at a time
+# only one deploy runs at a time
 concurrency:
   group: deploy-prod
   cancel-in-progress: false
@@ -36,6 +36,7 @@ jobs:
         id: tag
         run: echo "short_sha=${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
 
+      # Build & push Next.js web app (npm only)
       - name: Build & push WEB (Next.js)
         uses: docker/build-push-action@v6
         with:
@@ -48,6 +49,7 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
+      # Build & push FastAPI backend
       - name: Build & push API (FastAPI)
         uses: docker/build-push-action@v6
         with:
@@ -59,42 +61,3 @@ jobs:
             ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}-api:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
-
-  deploy-ec2:
-    # gate deploys so forks/other branches don't deploy
-    if: github.repository_owner == 'farhan-navas' && github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
-    needs: build-and-push
-    environment: production
-    steps:
-      - name: SSH into EC2 and deploy
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.EC2_SSH_KEY }}
-          script_stop: true
-          script: |
-            set -euo pipefail
-            SHORT_SHA="${{ needs.build-and-push.outputs.short_sha }}"
-
-            # Login to GHCR on the server (skip if packages are public)
-            docker login ghcr.io -u "${{ secrets.GHCR_USERNAME }}" -p "${{ secrets.GHCR_READ_TOKEN }}" || true
-
-            # Ensure deploy dir exists
-            mkdir -p /srv/app
-            cd /srv/app
-
-            # Ensure .env has tags and update them to this build's SHA
-            touch .env
-            grep -q '^WEB_TAG=' .env || echo "WEB_TAG=latest" >> .env
-            grep -q '^API_TAG=' .env || echo "API_TAG=latest" >> .env
-            sed -i.bak "s/^WEB_TAG=.*/WEB_TAG=${SHORT_SHA}/" .env
-            sed -i.bak "s/^API_TAG=.*/API_TAG=${SHORT_SHA}/" .env
-
-            # Pull and restart
-            docker compose pull
-            docker compose up -d
-
-            # Optional cleanup
-            docker image prune -f

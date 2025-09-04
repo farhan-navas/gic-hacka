@@ -2,7 +2,7 @@ name: CI/CD
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   build-and-deploy:
@@ -20,13 +20,13 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       # ---- Build and Push web-app ----
-      - name: Build web-app image
-        run: |
-          docker build --no-cache -t ghcr.io/${{ github.repository }}/web-app:latest -f web-app/Dockerfile web-app
+      # - name: Build web-app image
+      #   run: |
+      #     docker build --no-cache -t ghcr.io/${{ github.repository }}/web-app:latest -f web-app/Dockerfile web-app
 
-      - name: Push web-app image
-        run: |
-          docker push ghcr.io/${{ github.repository }}/web-app:latest
+      # - name: Push web-app image
+      #   run: |
+      #     docker push ghcr.io/${{ github.repository }}/web-app:latest
 
       # ---- Build and Push rest-api ----
       - name: Build rest-api image
@@ -45,11 +45,13 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_KEY }}
           script: |
-            docker pull ghcr.io/${{ github.repository }}/web-app:latest
             docker pull ghcr.io/${{ github.repository }}/rest-api:latest
 
-            docker stop web-app || true && docker rm web-app || true
             docker stop rest-api || true && docker rm rest-api || true
 
-            docker run -d --name web-app -p 3000:3000 ghcr.io/${{ github.repository }}/web-app:latest
             docker run -d --name rest-api -p 5000:5000 ghcr.io/${{ github.repository }}/rest-api:latest
+
+      # removed web app deployment sections from .yml
+      # docker pull ghcr.io/${{ github.repository }}/web-app:latest
+      # docker stop web-app || true && docker rm web-app || true
+      # docker run -d --name web-app -p 3000:3000 ghcr.io/${{ github.repository }}/web-app:latest

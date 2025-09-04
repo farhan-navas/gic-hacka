@@ -1,12 +1,3 @@
-# from fastapi import FastAPI
-
-# app = FastAPI()
-
-# @app.get('/')
-# def read_root():
-#     return { "message": "Welcome!" }
-
-
 from fastapi import FastAPI
 from app.models import PlaceholderRequest, PlaceholderResponse
 from app.services.compute import (

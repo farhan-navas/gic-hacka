@@ -1,7 +1,7 @@
 from contextlib import asynccontextmanager
 from typing import Generator, Iterable, Optional, Sequence, Tuple
 
-from fastapi import Depends, FastAPI, HTTPException, Request
+from fastapi import Depends, FastAPI, HTTPException, Request, Query
 from psycopg2.pool import SimpleConnectionPool
 from psycopg2.extensions import connection as PGConnection
 
@@ -10,6 +10,10 @@ from services.compute import (
     compute_volatility, compute_correlation, compute_tracking_error
 )
 
+from models import (
+    PortfolioPriceResponse, DailyReturnResponse, CorrelationResponse, CumulativeReturnResponse, 
+    DailyVolatilityResponse, TrackingErrorResponse
+)
 from db.config import DB_CONFIG
 
 min_connections = 1
@@ -50,23 +54,31 @@ def fetch_all(conn: PGConnection, query: str, params: Optional[Sequence] = None)
 # --------------------------
 # Endpoints
 # --------------------------
-@app.get("/metrics/portfolio_price")
-def portfolio_price(portfolio_id: int, date: str, conn: PGConnection = Depends(get_conn)):
+@app.get("/metrics/portfolio_price", response_model=PortfolioPriceResponse)
+def portfolio_price(
+    portfolioId: str = Query(), 
+    date: str = Query(), 
+    conn: PGConnection = Depends(get_conn)
+):
     rows = fetch_all(
         conn,
         """SELECT h.quantity, p.closing_price
            FROM holdings h
            JOIN prices p ON h.symbol = p.symbol AND h.date = p.date
            WHERE h.portfolio_id = %s AND h.date = %s""",
-        (portfolio_id, date),
+        (portfolioId, date),
     )
     price = compute_portfolio_price(rows)
     if price is None:
         raise HTTPException(status_code=404, detail="No data found")
-    return {"portfolio_id": portfolio_id, "date": date, "portfolio_price": price}
+    return {"portfolio_id": portfolioId, "date": date, "portfolio_price": price}
 
-@app.get("/metrics/daily_return")
-def daily_return(portfolio_id: int, start_date: str, end_date: str, conn: PGConnection = Depends(get_conn)):
+@app.get("/metrics/daily_return", response_model=DailyReturnResponse)
+def daily_return(
+    portfolioId: str = Query(), 
+    date: str = Query(),
+    conn: PGConnection = Depends(get_conn)
+):
     rows = fetch_all(
         conn,
         """SELECT h.date, SUM(h.quantity * p.closing_price) AS portfolio_value
@@ -74,15 +86,20 @@ def daily_return(portfolio_id: int, start_date: str, end_date: str, conn: PGConn
            JOIN prices p ON h.symbol = p.symbol AND h.date = p.date
            WHERE h.portfolio_id = %s AND h.date BETWEEN %s AND %s
            GROUP BY h.date ORDER BY h.date ASC""",
-        (portfolio_id, start_date, end_date),
+        (portfolioId, date),
     )
     dates, returns = compute_daily_return(rows)
     if returns is None:
         raise HTTPException(status_code=400, detail="Not enough data")
-    return {"portfolio_id": portfolio_id, "dates": dates, "daily_returns": returns}
+    return {"portfolio_id": portfolioId, "dates": dates, "daily_returns": returns}
 
-@app.get("/metrics/cumulative_return")
-def cumulative_return(portfolio_id: int, start_date: str, end_date: str, conn: PGConnection = Depends(get_conn)):
+@app.get("/metrics/cumulative_return", response_model=CumulativeReturnResponse)
+def cumulative_return(
+    portfolioId: str = Query(), 
+    startDate: str = Query(),
+    endDate: str = Query(), 
+    conn: PGConnection = Depends(get_conn)
+):
     rows = fetch_all(
         conn,
         """SELECT h.date, SUM(h.quantity * p.closing_price) AS portfolio_value
@@ -90,15 +107,20 @@ def cumulative_return(portfolio_id: int, start_date: str, end_date: str, conn: P
            JOIN prices p ON h.symbol = p.symbol AND h.date = p.date
            WHERE h.portfolio_id = %s AND h.date BETWEEN %s AND %s
            GROUP BY h.date ORDER BY h.date ASC""",
-        (portfolio_id, start_date, end_date),
+        (portfolioId, startDate, endDate),
     )
     dates, cumulative = compute_cumulative_return(rows)
     if cumulative is None:
         raise HTTPException(status_code=404, detail="No data found")
-    return {"portfolio_id": portfolio_id, "dates": dates, "cumulative_returns": cumulative}
+    return {"portfolio_id": portfolioId, "dates": dates, "cumulative_returns": cumulative}
 
-@app.get("/metrics/volatility")
-def volatility(portfolio_id: int, start_date: str, end_date: str, conn: PGConnection = Depends(get_conn)):
+@app.get("/metrics/volatility", response_model=DailyVolatilityResponse)
+def volatility(
+    portfolioId: str = Query(), 
+    startDate: str = Query(), 
+    endDate: str = Query(), 
+    conn: PGConnection = Depends(get_conn)
+):
     rows = fetch_all(
         conn,
         """SELECT h.date, SUM(h.quantity * p.closing_price) AS portfolio_value
@@ -106,37 +128,46 @@ def volatility(portfolio_id: int, start_date: str, end_date: str, conn: PGConnec
            JOIN prices p ON h.symbol = p.symbol AND h.date = p.date
            WHERE h.portfolio_id = %s AND h.date BETWEEN %s AND %s
            GROUP BY h.date ORDER BY h.date ASC""",
-        (portfolio_id, start_date, end_date),
+        (portfolioId, startDate, endDate),
     )
     vol = compute_volatility(rows)
     if vol is None:
         raise HTTPException(status_code=400, detail="Not enough data")
-    return {"portfolio_id": portfolio_id, "start_date": start_date, "end_date": end_date, "volatility": vol}
+    return {"portfolio_id": portfolioId, "start_date": startDate, "end_date": endDate, "volatility": vol}
 
-@app.get("/metrics/correlation")
-def correlation(portfolio_id: int, bmk_id: int, start_date: str, end_date: str, conn: PGConnection = Depends(get_conn)):
-    port_rows = fetch_all(
-        conn,
-        """SELECT h.date, SUM(h.quantity * p.closing_price) AS portfolio_value
-           FROM holdings h
-           JOIN prices p ON h.symbol = p.symbol AND h.date = p.date
-           WHERE h.portfolio_id = %s AND h.date BETWEEN %s AND %s
-           GROUP BY h.date ORDER BY h.date ASC""",
-        (portfolio_id, start_date, end_date),
-    )
-    bmk_rows = fetch_all(
-        conn,
-        """SELECT date, bmk_returns
-           FROM benchmark
-           WHERE bmk_id = %s AND portfolio_id = %s
-           AND date BETWEEN %s AND %s
-           ORDER BY date ASC""",
-        (bmk_id, portfolio_id, start_date, end_date),
-    )
-    corr = compute_correlation(port_rows, bmk_rows)
+@app.get("/metrics/correlation", response_model=CorrelationResponse)
+def correlation(
+    portfolioId1: str = Query(),
+    portfolioId2: str = Query(),
+    startDate: str = Query(), 
+    endDate: str = Query(), 
+    conn: PGConnection = Depends(get_conn)
+):
+    # port_rows = fetch_all(
+    #     conn,
+    #     """SELECT h.date, SUM(h.quantity * p.closing_price) AS portfolio_value
+    #        FROM holdings h
+    #        JOIN prices p ON h.symbol = p.symbol AND h.date = p.date
+    #        WHERE h.portfolio_id = %s AND h.date BETWEEN %s AND %s
+    #        GROUP BY h.date ORDER BY h.date ASC""",
+    #     (portfolioId1, startDate, endDate),
+    # )
+    # bmk_rows = fetch_all(
+    #     conn,
+    #     """SELECT date, bmk_returns
+    #        FROM benchmark
+    #        WHERE bmk_id = %s AND portfolio_id = %s
+    #        AND date BETWEEN %s AND %s
+    #        ORDER BY date ASC""",
+    #     (bmk_id, portfolioId1, startDate, endDate),
+    # )
+    # corr = compute_correlation(port_rows, bmk_rows)
+
+    corr = 0
+
     if corr is None:
         raise HTTPException(status_code=400, detail="Not enough data")
-    return {"portfolio_id": portfolio_id, "bmk_id": bmk_id, "correlation": corr}
+    return {"portfolio_id": portfolioId1, "bmk_id": portfolioId2, "correlation": corr}
 
 @app.get("/metrics/tracking_error")
 def tracking_error(portfolio_id: int, bmk_id: int, start_date: str, end_date: str, conn: PGConnection = Depends(get_conn)):

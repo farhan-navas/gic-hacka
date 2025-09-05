@@ -5,6 +5,7 @@ from fastapi import FastAPI, HTTPException, Request, Query
 import psycopg2
 from psycopg2.extras import RealDictCursor
 from datetime import date as Date, datetime, timedelta
+from fastapi.responses import JSONResponse
 
 from services.compute import (
     compute_daily_return, compute_cumulative_return,
@@ -218,13 +219,11 @@ def portfolio_price(
     portfolioId: str = Query(), 
     date: str = Query()
 ):
-    start = time.time()
     price = PORTFOLIO_PRICE_CACHE[int(portfolioId)][date]
 
     if price is None:
         raise HTTPException(status_code=404, detail="No data found")
 
-    print("time taken = ", time.time() - start)
     return {"portfolioId": portfolioId, "date": date, "price": price}
 
 @app.get("/daily-return", response_model=DailyReturnResponse)
@@ -241,6 +240,7 @@ def daily_return(
 
     if returns is None:
         raise HTTPException(status_code=400, detail="Not enough data")
+    
     return {"portfolioId": portfolioId, "date": date, "return": returns}
 
 @app.get("/cumulative-return", response_model=CumulativeReturnResponse)
@@ -249,9 +249,10 @@ def cumulative_return(
     startDate: str = Query(),
     endDate: str = Query()
 ):  
-    dates, cumulative = None, None
+    cumulative = 0
     if cumulative is None:
         raise HTTPException(status_code=404, detail="No data found")
+    
     return {"portfolioId": portfolioId, "cumulativeReturn": cumulative}
 
 @app.get("/daily-volatility", response_model=DailyVolatilityResponse)
@@ -293,8 +294,7 @@ def tracking_error(
 
 @app.get("/health")
 def health(request: Request):
-    ok = hasattr(request.app.state, "pool")
-    return {"status": "ok" if ok else "booting"}
+    return JSONResponse(content={ "status": "ok" }, status_code=200)
 
 @app.get("/cache/status")
 def cache_status():

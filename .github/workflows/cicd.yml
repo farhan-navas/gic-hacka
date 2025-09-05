@@ -36,11 +36,11 @@ jobs:
       # ---- Build and Push rest-api ----
       - name: Build rest-api image
         run: |
-          #docker build --no-cache -t ghcr.io/${{ github.repository }}/rest-api:latest -f rest-api/Dockerfile rest-api
+          docker build --no-cache -t ghcr.io/${{ github.repository }}/rest-api:latest -f rest-api/Dockerfile rest-api
 
       - name: Push rest-api image
         run: |
-          #docker push ghcr.io/${{ github.repository }}/rest-api:latest
+          docker push ghcr.io/${{ github.repository }}/rest-api:latest
 
       # ---- Deploy to EC2 ----
       - name: Deploy to EC2
@@ -52,11 +52,11 @@ jobs:
           script: |
             whoami
             pwd
-            #docker pull ghcr.io/${{ github.repository }}/rest-api:latest
+            docker pull ghcr.io/${{ github.repository }}/rest-api:latest
 
-            #docker stop rest-api || true && docker rm rest-api || true
+            docker stop rest-api || true && docker rm rest-api || true
 
-            #docker run -d --name rest-api -p 8080:8080 ghcr.io/${{ github.repository }}/rest-api:latest
+            docker run -d --name rest-api -p 8080:8080 ghcr.io/${{ github.repository }}/rest-api:latest
 
           # commented out because we expose as 8080 on host
           # docker run -d --name rest-api -p 5000:5000 ghcr.io/${{ github.repository }}/rest-api:latest

@@ -19,11 +19,13 @@ idna==3.10
 inflect==7.5.0
 isort==6.0.1
 jinja2==3.1.6
+llvmlite==0.44.0
 markdown-it-py==4.0.0
 markupsafe==3.0.2
 mdurl==0.1.2
 more-itertools==10.8.0
 mypy-extensions==1.1.0
+numba==0.61.2
 numpy==2.1.1
 packaging==25.0
 pathspec==0.12.1

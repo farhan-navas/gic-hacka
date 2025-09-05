@@ -1,7 +1,6 @@
 import os
 from dotenv import load_dotenv
 
-# load variables from .env file
 load_dotenv()
 
 DB_CONFIG = {
@@ -10,5 +9,5 @@ DB_CONFIG = {
     "dbname": os.getenv("DB_NAME"),
     "user": os.getenv("DB_USER"),
     "password": os.getenv("DB_PASSWORD"),
-    "sslmode": "require",  # Supabase requires SSL
+    "sslmode": "require", 
 }

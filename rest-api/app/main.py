@@ -17,6 +17,7 @@ from models import (
     DailyVolatilityResponse, TrackingErrorResponse
 )
 
+from bisect import bisect_left, bisect_right
 from db.config import DB_CONFIG
 
 log = logging.getLogger("portfolio-cache")
@@ -157,7 +158,7 @@ def daily_return(
     portfolioId: str = Query(), 
     date: str = Query()
 ):
-    date_yesterday = str(datetime.strptime(date, DATE_FORMAT_STRING) - timedelta(days=1))
+    date_yesterday = (datetime.strptime(date, DATE_FORMAT_STRING) - timedelta(days=1)).strftime(DATE_FORMAT_STRING)
 
     price_today = PORTFOLIO_PRICE_CACHE[int(portfolioId)][date]
     price_yesterday = PORTFOLIO_PRICE_CACHE[int(portfolioId)][date_yesterday]
@@ -175,11 +176,51 @@ def cumulative_return(
     startDate: str = Query(),
     endDate: str = Query()
 ):  
-    cumulative = 0
-    if cumulative is None:
-        raise HTTPException(status_code=404, detail="No data found")
-    
-    return {"portfolioId": portfolioId, "cumulativeReturn": cumulative}
+    try: 
+        Date.fromisoformat(startDate)
+        Date.fromisoformat(endDate)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="startDate/endDate must be YYYY-MM-DD")
+        
+    if startDate > endDate:
+        raise HTTPException(status_code=400, detail="startDate must be <= endDate")
+
+    mp = PORTFOLIO_PRICE_CACHE.get(int(portfolioId))
+    if not mp:
+        raise HTTPException(status_code=404, detail="Unknown portfolioId or no prices cached")
+
+    dates_sorted = sorted(mp.keys())
+
+    # first trading day >= startDate, and last trading day <= endDate
+    lo = bisect_left(dates_sorted, startDate)
+    hi = bisect_right(dates_sorted, endDate)
+
+    if lo == 0:
+        raise HTTPException(
+            status_code=400,
+            detail="No prior trading day before startDate to form the base price."
+        )
+    if hi <= lo:
+        raise HTTPException(status_code=404, detail="No trading dates within the given range")
+
+    # base is previous trading day (start is inclusive per spec)
+    base_date = dates_sorted[lo - 1]
+    prev_price = mp.get(base_date)
+    if prev_price is None or float(prev_price) == 0.0:
+        raise HTTPException(status_code=400, detail="Missing/zero base price before startDate")
+
+    # walk from first day in range to last day in range
+    cumulative = 1.0
+    for d in dates_sorted[lo:hi]:
+        p = mp.get(d)
+        if p is None:
+            raise HTTPException(status_code=500, detail=f"Missing price for {d}")
+        prev = float(prev_price)
+        r = (float(p) - prev) / prev
+        cumulative *= (1.0 + r)
+        prev_price = p
+
+    return {"portfolioId": portfolioId, "cumulativeReturn": float(cumulative - 1.0)}
 
 @app.get("/daily-volatility", response_model=DailyVolatilityResponse)
 def volatility(

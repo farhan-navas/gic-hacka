@@ -157,20 +157,49 @@ def portfolio_price(
 
 @app.get("/daily-return")
 def daily_return(
-    portfolioId: str = Query(), 
-    date: str = Query()
+    portfolioId: str = Query(...),
+    date: str = Query(...),                
 ):
-    date_yesterday = (datetime.strptime(date, DATE_FORMAT_STRING) - timedelta(days=1)).strftime(DATE_FORMAT_STRING)
+    try:
+        Date.fromisoformat(date)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="date must be YYYY-MM-DD")
 
-    price_today = PORTFOLIO_PRICE_CACHE[int(portfolioId)][date]
-    price_yesterday = PORTFOLIO_PRICE_CACHE[int(portfolioId)][date_yesterday]
+    mp = PORTFOLIO_PRICE_CACHE.get(int(portfolioId))
+    if not mp:
+        raise HTTPException(status_code=404, detail="Unknown portfolioId or no prices cached")
 
-    returns = (price_today - price_yesterday) / price_yesterday
+    # ISO date strings sort chronologically
+    dates_sorted = sorted(mp.keys())
 
-    if returns is None:
-        raise HTTPException(status_code=400, detail="Not enough data")
+    # find the requested trading day
+    i = bisect_left(dates_sorted, date)
+    if i == len(dates_sorted) or dates_sorted[i] != date:
+        # no price for that exact day
+        raise HTTPException(
+            status_code=404,
+            detail=f"No price for {date}. Provide a trading date from the cache."
+        )
+
+    if i == 0:
+        # there is no prior trading day to form a base
+        raise HTTPException(
+            status_code=400,
+            detail="No prior trading day exists to compute the return."
+        )
+
+    today = dates_sorted[i]
+    yesterday = dates_sorted[i - 1]
+
+    p_today = float(mp[today])
+    p_yday  = float(mp[yesterday])
     
-    return {"portfolioId": portfolioId, "date": date, "return": returns}
+    if p_yday == 0.0:
+        raise HTTPException(status_code=400, detail="Base price is zero; cannot compute return.")
+
+    ret = (p_today - p_yday) / p_yday
+
+    return {"portfolioId": portfolioId, "date": today, "return": ret}
 
 @app.get("/cumulative-return", response_model=CumulativeReturnResponse)
 def cumulative_return(

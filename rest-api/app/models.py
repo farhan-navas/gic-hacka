@@ -10,15 +10,15 @@ class PortfolioPriceResponse(BaseModel):
     date: str  # ISO date format
     price: float
 
-class DailyReturnResponse(BaseModel):
-    """Response model for /daily-return endpoint."""
-    portfolioId: str
-    date: str  # ISO date format
-    return_: float  # Using return_ since 'return' is a Python keyword
+# class DailyReturnResponse(BaseModel):
+#     """Response model for /daily-return endpoint."""
+#     portfolioId: str
+#     date: str  # ISO date format
+#     return_: float  # Using return_ since 'return' is a Python keyword
     
-    class Config:
-        # This allows the field to be serialized as 'return' in JSON
-        fields = {"return_": "return"}
+#     class Config:
+#         # This allows the field to be serialized as 'return' in JSON
+#         fields = {"return_": "return"}
 
 class CumulativeReturnResponse(BaseModel):
     """Response model for /cumulative-return endpoint."""

@@ -15,7 +15,7 @@ from services.compute import (
 )
 
 from models import (
-    PortfolioPriceResponse, DailyReturnResponse, CorrelationResponse, CumulativeReturnResponse, 
+    PortfolioPriceResponse, CorrelationResponse, CumulativeReturnResponse, 
     DailyVolatilityResponse, TrackingErrorResponse
 )
 
@@ -155,7 +155,7 @@ def portfolio_price(
 
     return {"portfolioId": portfolioId, "date": date, "price": price}
 
-@app.get("/daily-return", response_model=DailyReturnResponse)
+@app.get("/daily-return")
 def daily_return(
     portfolioId: str = Query(), 
     date: str = Query()
@@ -170,7 +170,7 @@ def daily_return(
     if returns is None:
         raise HTTPException(status_code=400, detail="Not enough data")
     
-    return {"portfolioId": portfolioId, "date": date, "return_": returns}
+    return {"portfolioId": portfolioId, "date": date, "return": returns}
 
 @app.get("/cumulative-return", response_model=CumulativeReturnResponse)
 def cumulative_return(

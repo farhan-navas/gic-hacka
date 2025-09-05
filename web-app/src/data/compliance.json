@@ -1,0 +1,8 @@
+{
+  "guidelines": [
+    { "tradingLimit": 5000000, "accepted": true }
+  ],
+  "feedback": [
+    "Declined: Mandate pre-trade approval for derivatives"
+  ]
+}

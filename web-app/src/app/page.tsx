@@ -1,8 +1,48 @@
 import Image from "next/image";
+import Link from "next/link";
 
 export default function Home() {
   return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
+    <div className="font-sans min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
+      <main className="flex flex-col items-center justify-center space-y-8 p-8">
+        <div className="text-center mb-8">
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">
+            Risk Analytics Dashboard
+          </h1>
+          <p className="text-xl text-gray-600">
+            Comprehensive portfolio risk analytics and compliance management
+          </p>
+        </div>
+        
+        <div className="flex flex-col sm:flex-row gap-6 items-center justify-center">
+          <Link
+            href="/portfolio"
+            className="financial-card w-64 h-32 flex flex-col items-center justify-center text-center hover:shadow-lg transition-all duration-300 hover:scale-105 bg-white border border-gray-200 rounded-lg p-6"
+          >
+            <div className="text-3xl mb-2">📊</div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-1">Portfolio</h3>
+            <p className="text-sm text-gray-600">Manage your investments</p>
+          </Link>
+
+          <Link
+            href="/reporting"
+            className="financial-card w-64 h-32 flex flex-col items-center justify-center text-center hover:shadow-lg transition-all duration-300 hover:scale-105 bg-white border border-gray-200 rounded-lg p-6"
+          >
+            <div className="text-3xl mb-2">📈</div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-1">Reporting</h3>
+            <p className="text-sm text-gray-600">View analytics & reports</p>
+          </Link>
+
+          <Link
+            href="/compliance"
+            className="financial-card w-64 h-32 flex flex-col items-center justify-center text-center hover:shadow-lg transition-all duration-300 hover:scale-105 bg-white border border-gray-200 rounded-lg p-6"
+          >
+            <div className="text-3xl mb-2">✅</div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-1">Compliance</h3>
+            <p className="text-sm text-gray-600">Regulatory compliance</p>
+          </Link>
+        </div>
+      </main>
       {/* <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
         <Image
           className="dark:invert"

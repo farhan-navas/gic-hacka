@@ -2,12 +2,6 @@
 
 import { useState } from "react";
 import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardContent,
-} from "@/components/ui/card";
-import {
   Table,
   TableHead,
   TableHeader,
@@ -126,15 +120,13 @@ export default function PortfolioManager() {
   }
 
   return (
-    <div className="space-y-6 p-6">
-      {/* Portfolio Selection */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Select Portfolio</CardTitle>
-        </CardHeader>
-        <CardContent>
+    <div className="min-h-screen p-6">
+      <div className="max-w-6xl mx-auto space-y-6">
+        {/* Portfolio Selection */}
+        <section className="financial-card p-8 space-y-6 bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-lg">
+          <h2 className="text-xl font-semibold text-blue-900 border-b border-blue-200 pb-2">Select Portfolio</h2>
           <select
-            className="border rounded p-2"
+            className="w-full border border-blue-200 rounded-lg p-3 bg-white/80 backdrop-blur-sm hover:border-blue-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200"
             value={selectedPortfolio}
             onChange={(e) => {
               const name = e.target.value;
@@ -149,113 +141,126 @@ export default function PortfolioManager() {
               </option>
             ))}
           </select>
-        </CardContent>
-      </Card>
+        </section>
 
-      
-      <Card>
-        <CardHeader>
-          <CardTitle>Current Holdings</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Ticker</TableHead>
-                <TableHead>Shares</TableHead>
-                <TableHead>Price ($)</TableHead>
-                <TableHead>Value ($)</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {Object.entries(portfolio).map(([ticker, { shares, price }]: any) => (
-                <TableRow key={ticker}>
-                  <TableCell>{ticker}</TableCell>
-                  <TableCell>{shares.toFixed(2)}</TableCell>
-                  <TableCell>{price.toFixed(2)}</TableCell>
-                  <TableCell>${(shares * price).toLocaleString()}</TableCell>
+        {/* Current Holdings */}
+        <section className="financial-card p-8 space-y-6 bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-lg">
+          <h2 className="text-xl font-semibold text-blue-900 border-b border-blue-200 pb-2">Current Holdings</h2>
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="text-blue-800 font-semibold">Ticker</TableHead>
+                  <TableHead className="text-blue-800 font-semibold">Shares</TableHead>
+                  <TableHead className="text-blue-800 font-semibold">Price ($)</TableHead>
+                  <TableHead className="text-blue-800 font-semibold">Value ($)</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+              </TableHeader>
+              <TableBody>
+                {Object.entries(portfolio).map(([ticker, { shares, price }]: any) => (
+                  <TableRow key={ticker} className="hover:bg-blue-50/50 transition-colors duration-200">
+                    <TableCell className="font-medium text-gray-800">{ticker}</TableCell>
+                    <TableCell className="text-gray-700">{shares.toFixed(2)}</TableCell>
+                    <TableCell className="text-gray-700">{price.toFixed(2)}</TableCell>
+                    <TableCell className="font-semibold text-blue-700">${(shares * price).toLocaleString()}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        </section>
 
-      
-      <Card>
-        <CardHeader>
-          <CardTitle>Risk & Compliance Metrics</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <ul className="text-sm space-y-2">
-            <li>
-              <strong>Tracking Error:</strong>{" "}
-              {(metrics.tracking_error * 100).toFixed(2)}% (limit ≤ 1%)
-            </li>
-            <li>
-              <strong>Sharpe Ratio:</strong> {metrics.sharpe.toFixed(2)} (min ≥ 0.5)
-            </li>
-            <li>
-              <strong>Volatility:</strong>{" "}
-              {(metrics.volatility * 100).toFixed(2)}% (limit ≤ 15%)
-            </li>
-            <li>
-              <strong>Max Drawdown:</strong>{" "}
-              {(metrics.max_drawdown * 100).toFixed(2)}% (limit ≥ -10%)
-            </li>
-          </ul>
-        </CardContent>
-      </Card>
+        {/* Risk & Compliance Metrics */}
+        <section className="financial-card p-8 space-y-6 bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-lg">
+          <h2 className="text-xl font-semibold text-blue-900 border-b border-blue-200 pb-2">Risk & Compliance Metrics</h2>
+          <div className="grid md:grid-cols-2 gap-6">
+            <div className="border border-blue-200 rounded-xl p-5 bg-white/80 backdrop-blur-sm hover:shadow-md transition-all duration-200 hover:border-blue-300">
+              <p className="text-sm text-blue-600 font-medium mb-1">Risk Management</p>
+              <p className="font-semibold text-gray-800 mb-2">Tracking Error</p>
+              <p className="text-blue-700 font-medium">{(metrics.tracking_error * 100).toFixed(2)}% (limit ≤ 1%)</p>
+            </div>
+            <div className="border border-blue-200 rounded-xl p-5 bg-white/80 backdrop-blur-sm hover:shadow-md transition-all duration-200 hover:border-blue-300">
+              <p className="text-sm text-blue-600 font-medium mb-1">Performance</p>
+              <p className="font-semibold text-gray-800 mb-2">Sharpe Ratio</p>
+              <p className="text-blue-700 font-medium">{metrics.sharpe.toFixed(2)} (min ≥ 0.5)</p>
+            </div>
+            {/* <div className="border border-blue-200 rounded-xl p-5 bg-white/80 backdrop-blur-sm hover:shadow-md transition-all duration-200 hover:border-blue-300">
+              <p className="text-sm text-blue-600 font-medium mb-1">Risk Management</p>
+              <p className="font-semibold text-gray-800 mb-2">Volatility</p>
+              <p className="text-blue-700 font-medium">{(metrics.volatility * 100).toFixed(2)}% (limit ≤ 15%)</p>
+            </div>
+            <div className="border border-blue-200 rounded-xl p-5 bg-white/80 backdrop-blur-sm hover:shadow-md transition-all duration-200 hover:border-blue-300">
+              <p className="text-sm text-blue-600 font-medium mb-1">Risk Management</p>
+              <p className="font-semibold text-gray-800 mb-2">Max Drawdown</p>
+              <p className="text-blue-700 font-medium">{(metrics.max_drawdown * 100).toFixed(2)}% (limit ≥ -10%)</p>
+            </div> */}
+            <div className="border border-blue-200 rounded-xl p-5 bg-white/80 backdrop-blur-sm hover:shadow-md transition-all duration-200 hover:border-blue-300">
+              <p className="text-sm text-blue-600 font-medium mb-1">Compliance</p>
+              <p className="font-semibold text-gray-800 mb-2">Trading Limit</p>
+              <p className="text-blue-700 font-medium">4,000,000</p>
+            </div>
+            <div className="border border-blue-200 rounded-xl p-5 bg-white/80 backdrop-blur-sm hover:shadow-md transition-all duration-200 hover:border-blue-300">
+              <p className="text-sm text-blue-600 font-medium mb-1">Compliance</p>
+              <p className="font-semibold text-gray-800 mb-2">Report Frequency</p>
+              <p className="text-blue-700 font-medium">Daily</p>
+            </div>
+          </div>
+        </section>
 
-      
-      <Card>
-        <CardHeader>
-          <CardTitle>Trade Simulator</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex gap-4 items-center mb-6">
-            <select
-              className="border rounded p-2"
-              value={tradeTicker}
-              onChange={(e) => setTradeTicker(e.target.value)}
-            >
-              {Object.keys(portfolio).map((ticker) => (
-                <option key={ticker} value={ticker}>
-                  {ticker}
-                </option>
-              ))}
-            </select>
+        {/* Trade Simulator */}
+        <section className="financial-card p-8 space-y-6 bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-lg">
+          <h2 className="text-xl font-semibold text-blue-900 border-b border-blue-200 pb-2">Trade Simulator</h2>
+          <div className="grid md:grid-cols-3 gap-4 items-end">
+            <div>
+              <label className="block text-sm font-medium text-blue-800 mb-2">Select Ticker</label>
+              <select
+                className="w-full h-12 border border-blue-200 rounded-lg px-3 py-3 bg-white/80 backdrop-blur-sm hover:border-blue-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200"
+                value={tradeTicker}
+                onChange={(e) => setTradeTicker(e.target.value)}
+              >
+                {Object.keys(portfolio).map((ticker) => (
+                  <option key={ticker} value={ticker}>
+                    {ticker}
+                  </option>
+                ))}
+              </select>
+            </div>
 
-            <input
-              type="number"
-              placeholder="Number of Shares"
-              className="border rounded p-2 w-40"
-              value={tradeShares}
-              onChange={(e) => setTradeShares(Number(e.target.value))}
-            />
+            <div>
+              <label className="block text-sm font-medium text-blue-800 mb-2">Number of Shares</label>
+              <input
+                type="number"
+                placeholder="Enter shares"
+                className="w-full h-12 border border-blue-200 rounded-lg px-3 py-3 bg-white/80 backdrop-blur-sm hover:border-blue-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200"
+                value={tradeShares}
+                onChange={(e) => setTradeShares(Number(e.target.value))}
+              />
+            </div>
 
-            <button
-              className="px-4 py-2 bg-green-600 text-white rounded"
-              onClick={() => handleTrade("BUY")}
-            >
-              Buy
-            </button>
+            <div className="flex gap-2">
+              <button
+                className="px-3 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-all duration-200 shadow-md hover:shadow-lg text-sm w-16"
+                onClick={() => handleTrade("BUY")}
+              >
+                Buy
+              </button>
 
-            <button
-              className="px-4 py-2 bg-red-600 text-white rounded"
-              onClick={() => handleTrade("SELL")}
-            >
-              Sell
-            </button>
+              <button
+                className="px-3 py-2 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 transition-all duration-200 shadow-md hover:shadow-lg text-sm w-16"
+                onClick={() => handleTrade("SELL")}
+              >
+                Sell
+              </button>
+            </div>
           </div>
 
-          
+          {/* Trade Result */}
           {tradeResult && (
             <div
-              className={`mt-4 p-3 rounded ${
+              className={`p-4 rounded-lg border ${
                 tradeResult.status === "approved"
-                  ? "bg-green-100 text-green-700"
-                  : "bg-red-100 text-red-700"
+                  ? "bg-green-50 text-green-800 border-green-200"
+                  : "bg-red-50 text-red-800 border-red-200"
               }`}
             >
               {tradeResult.status === "approved"
@@ -263,8 +268,8 @@ export default function PortfolioManager() {
                 : `❌ Trade Rejected: ${tradeResult.reason}`}
             </div>
           )}
-        </CardContent>
-      </Card>
+        </section>
+      </div>
     </div>
   );
 }

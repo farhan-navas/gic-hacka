@@ -7,6 +7,8 @@ from psycopg2.extras import RealDictCursor
 from datetime import date as Date, datetime, timedelta
 from fastapi.responses import JSONResponse
 
+import numpy as np
+
 from services.compute import (
     compute_daily_return, compute_cumulative_return,
     compute_volatility, compute_correlation, compute_tracking_error
@@ -168,7 +170,7 @@ def daily_return(
     if returns is None:
         raise HTTPException(status_code=400, detail="Not enough data")
     
-    return {"portfolioId": portfolioId, "date": date, "return": returns}
+    return {"portfolioId": portfolioId, "date": date, "return_": returns}
 
 @app.get("/cumulative-return", response_model=CumulativeReturnResponse)
 def cumulative_return(
@@ -191,7 +193,6 @@ def cumulative_return(
 
     dates_sorted = sorted(mp.keys())
 
-    # first trading day >= startDate, and last trading day <= endDate
     lo = bisect_left(dates_sorted, startDate)
     hi = bisect_right(dates_sorted, endDate)
 
@@ -224,14 +225,55 @@ def cumulative_return(
 
 @app.get("/daily-volatility", response_model=DailyVolatilityResponse)
 def volatility(
-    portfolioId: str = Query(), 
-    startDate: str = Query(), 
-    endDate: str = Query()
+    portfolioId: str = Query(...),
+    startDate: str = Query(...),
+    endDate: str = Query(...),
 ):
-    vol = None
-    if vol is None:
-        raise HTTPException(status_code=400, detail="Not enough data")
-    return {"portfolio_id": portfolioId, "start_date": startDate, "end_date": endDate, "volatility": vol}
+    try:
+        Date.fromisoformat(startDate)
+        Date.fromisoformat(endDate)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="startDate/endDate must be YYYY-MM-DD")
+    if startDate > endDate:
+        raise HTTPException(status_code=400, detail="startDate must be <= endDate")
+
+    mp = PORTFOLIO_PRICE_CACHE.get(int(portfolioId))
+    if not mp:
+        raise HTTPException(status_code=404, detail="Unknown portfolioId or no prices cached")
+
+    dates_sorted = sorted(mp.keys())
+
+    lo = bisect_left(dates_sorted, startDate)
+    hi = bisect_right(dates_sorted, endDate)
+    if lo == 0:
+        raise HTTPException(status_code=400, detail="No prior trading day before startDate to form base price")
+    if hi <= lo:
+        raise HTTPException(status_code=404, detail="No trading dates within the given range")
+
+    base_date = dates_sorted[lo - 1]
+    prev_price = mp.get(base_date)
+    if prev_price is None or float(prev_price) == 0.0:
+        raise HTTPException(status_code=400, detail="Missing/zero base price before startDate")
+
+    returns = []
+    for d in dates_sorted[lo:hi]:
+        p = mp.get(d)
+        if p is None:
+            raise HTTPException(status_code=500, detail=f"Missing price for {d}")
+        p = float(p)
+        prev = float(prev_price)
+        r = (p - prev) / prev
+        returns.append(r)
+        prev_price = p
+
+    N = len(returns)
+    if N < 2:
+        raise HTTPException(status_code=400, detail="Not enough data: need at least 2 daily returns")
+
+    r = np.array(returns, dtype=float)
+    vol = float(np.sqrt(r.var(ddof=1))) # one shot
+
+    return {"portfolioId": portfolioId, "volatility": vol}
 
 @app.get("/correlation", response_model=CorrelationResponse)
 def correlation(

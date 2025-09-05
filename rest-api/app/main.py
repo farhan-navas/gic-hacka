@@ -7,7 +7,7 @@ from psycopg2.extras import RealDictCursor
 from datetime import date
 
 from services.compute import (
-    compute_portfolio_price, compute_daily_return, compute_cumulative_return,
+    compute_daily_return, compute_cumulative_return,
     compute_volatility, compute_correlation, compute_tracking_error
 )
 
@@ -139,7 +139,7 @@ app = FastAPI(title="GIC Risk Metrics API", version="1.0", lifespan=lifespan)
 # --------------------------
 # Endpoints
 # --------------------------
-@app.get("/portfolio_price", response_model=PortfolioPriceResponse)
+@app.get("/portfolio-price", response_model=PortfolioPriceResponse)
 def portfolio_price(
     portfolioId: str = Query(), 
     date: str = Query()
@@ -153,7 +153,7 @@ def portfolio_price(
     print("time taken = ", time.time() - start)
     return {"portfolioId": portfolioId, "date": date, "price": price}
 
-@app.get("/daily_return", response_model=DailyReturnResponse)
+@app.get("/daily-return", response_model=DailyReturnResponse)
 def daily_return(
     portfolioId: str = Query(), 
     date: str = Query()
@@ -163,7 +163,7 @@ def daily_return(
         raise HTTPException(status_code=400, detail="Not enough data")
     return {"portfolio_id": portfolioId, "dates": dates, "daily_returns": returns}
 
-@app.get("/cumulative_return", response_model=CumulativeReturnResponse)
+@app.get("/cumulative-return", response_model=CumulativeReturnResponse)
 def cumulative_return(
     portfolioId: str = Query(), 
     startDate: str = Query(),
@@ -174,7 +174,7 @@ def cumulative_return(
         raise HTTPException(status_code=404, detail="No data found")
     return {"portfolio_id": portfolioId, "dates": dates, "cumulative_returns": cumulative}
 
-@app.get("/volatility", response_model=DailyVolatilityResponse)
+@app.get("/daily-volatility", response_model=DailyVolatilityResponse)
 def volatility(
     portfolioId: str = Query(), 
     startDate: str = Query(), 
@@ -198,7 +198,7 @@ def correlation(
         raise HTTPException(status_code=400, detail="Not enough data")
     return {"portfolio_id": portfolioId1, "bmk_id": portfolioId2, "correlation": corr}
 
-@app.get("/tracking_error", response_model=TrackingErrorResponse)
+@app.get("/tracking-error", response_model=TrackingErrorResponse)
 def tracking_error(
     portfolioId: str = Query(), 
     benchmarkId: str = Query(), 

@@ -4,11 +4,11 @@ from numba import njit
 # --------------------------
 # 1. Portfolio Price
 # --------------------------
-@njit
-def compute_portfolio_price(rows):
-    if not rows:
-        return None
-    return np.sum([q * c for q, c in rows])
+# @njit
+# def compute_portfolio_price(rows):
+#     if not rows:
+#         return None
+#     return np.sum([q * c for q, c in rows])
 
 
 # --------------------------

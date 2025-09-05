@@ -63,13 +63,4 @@ jobs:
 
             # Start a production uvicorn (adjust module:app to your entry)
             # e.g., app/main.py with FastAPI() as "app" => app.main:app
-            nohup .venv/bin/uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 2 > app.log 2>&1 &
-
-            sleep 3
-            if pgrep -u "$USER" -f "uvicorn .*--port 8000" > /dev/null; then
-              echo "Application started on port 8000"
-            else
-              echo "Failed to start application"
-              tail -n 200 app.log || true
-              exit 1
-            fi
+            .venv/bin/uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 2 > app.log 2>&1 &

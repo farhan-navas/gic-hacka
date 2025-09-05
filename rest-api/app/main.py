@@ -169,9 +169,14 @@ def correlation(
         raise HTTPException(status_code=400, detail="Not enough data")
     return {"portfolio_id": portfolioId1, "bmk_id": portfolioId2, "correlation": corr}
 
-@app.get("/metrics/tracking_error")
+@app.get("/metrics/tracking_error", response_model=TrackingErrorResponse)
 def tracking_error(
-    portfolio_id: int, bmk_id: int, start_date: str, end_date: str, conn: PGConnection = Depends(get_conn)):
+    portfolioId: str = Query(), 
+    benchmarkId: str = Query(), 
+    startDate: str = Query(), 
+    endDate: str = Query(), 
+    conn: PGConnection = Depends(get_conn)
+):
     port_rows = fetch_all(
         conn,
         """SELECT h.date, SUM(h.quantity * p.closing_price) AS portfolio_value
@@ -179,7 +184,7 @@ def tracking_error(
            JOIN prices p ON h.symbol = p.symbol AND h.date = p.date
            WHERE h.portfolio_id = %s AND h.date BETWEEN %s AND %s
            GROUP BY h.date ORDER BY h.date ASC""",
-        (portfolio_id, start_date, end_date),
+        (portfolioId, startDate, endDate),
     )
     bmk_rows = fetch_all(
         conn,
@@ -188,12 +193,12 @@ def tracking_error(
            WHERE bmk_id = %s AND portfolio_id = %s
            AND date BETWEEN %s AND %s
            ORDER BY date ASC""",
-        (bmk_id, portfolio_id, start_date, end_date),
+        (benchmarkId, portfolioId, startDate, endDate),
     )
     te = compute_tracking_error(port_rows, bmk_rows)
     if te is None:
         raise HTTPException(status_code=400, detail="Not enough data")
-    return {"portfolio_id": portfolio_id, "bmk_id": bmk_id, "tracking_error": te}
+    return {"portfolio_id": portfolioId, "bmk_id": benchmarkId, "tracking_error": te}
 
 @app.get("/health")
 def health(request: Request):

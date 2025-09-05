@@ -45,7 +45,7 @@ const ReportingAnalystDashboard = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="dashboard-root space-y-6">
       {/* Controls */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">

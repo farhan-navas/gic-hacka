@@ -170,7 +170,8 @@ def correlation(
     return {"portfolio_id": portfolioId1, "bmk_id": portfolioId2, "correlation": corr}
 
 @app.get("/metrics/tracking_error")
-def tracking_error(portfolio_id: int, bmk_id: int, start_date: str, end_date: str, conn: PGConnection = Depends(get_conn)):
+def tracking_error(
+    portfolio_id: int, bmk_id: int, start_date: str, end_date: str, conn: PGConnection = Depends(get_conn)):
     port_rows = fetch_all(
         conn,
         """SELECT h.date, SUM(h.quantity * p.closing_price) AS portfolio_value

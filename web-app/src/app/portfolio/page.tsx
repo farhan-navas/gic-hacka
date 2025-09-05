@@ -14,7 +14,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Slider } from "@/components/ui/slider";
 import { TrendingUp, TrendingDown, Zap } from "lucide-react";
 
@@ -25,8 +32,20 @@ const portfolios = [
 ];
 
 const portfolioMetrics = {
-  "1": { dailyReturns: 0.23, portfolioPrice: 2450000000, volatility: 8.2, trackingError: 1.5, cumulativeReturns: 18.7 },
-  "2": { dailyReturns: 0.15, portfolioPrice: 1850000000, volatility: 5.1, trackingError: 2.1, cumulativeReturns: 12.3 },
+  "1": {
+    dailyReturns: 0.23,
+    portfolioPrice: 2450000000,
+    volatility: 8.2,
+    trackingError: 1.5,
+    cumulativeReturns: 18.7,
+  },
+  "2": {
+    dailyReturns: 0.15,
+    portfolioPrice: 1850000000,
+    volatility: 5.1,
+    trackingError: 2.1,
+    cumulativeReturns: 12.3,
+  },
 } as const;
 
 type PortfolioId = keyof typeof portfolioMetrics;
@@ -69,7 +88,8 @@ function calcCorrelation(arr1: number[], arr2: number[]): number {
   const n = arr1.length;
   const mean1 = arr1.reduce((a, b) => a + b, 0) / n;
   const mean2 = arr2.reduce((a, b) => a + b, 0) / n;
-  const cov = arr1.map((v, i) => (v - mean1) * (arr2[i] - mean2)).reduce((a, b) => a + b, 0) / n;
+  const cov =
+    arr1.map((v, i) => (v - mean1) * (arr2[i] - mean2)).reduce((a, b) => a + b, 0) / n;
   const std1 = Math.sqrt(arr1.map((v) => (v - mean1) ** 2).reduce((a, b) => a + b, 0) / n);
   const std2 = Math.sqrt(arr2.map((v) => (v - mean2) ** 2).reduce((a, b) => a + b, 0) / n);
   return cov / (std1 * std2);
@@ -94,7 +114,6 @@ export default function PortfolioPage() {
   const [rateHikePercent, setRateHikePercent] = useState([200]);
   const [isClient, setIsClient] = useState(false);
 
-  // Ensure client-side rendering
   useEffect(() => {
     setIsClient(true);
   }, []);
@@ -141,7 +160,8 @@ export default function PortfolioPage() {
       {
         scenario: "Combined Stress",
         dailyReturns: base.dailyReturns - (marketDropFactor * 0.5 + rateHikeFactor * 0.2),
-        portfolioPrice: base.portfolioPrice * (1 - marketDropFactor * 0.15) * (1 - rateHikeFactor * 0.05),
+        portfolioPrice:
+          base.portfolioPrice * (1 - marketDropFactor * 0.15) * (1 - rateHikeFactor * 0.05),
         volatility: base.volatility + (marketDropFactor * 4 + rateHikeFactor * 2),
         trackingError: base.trackingError + (marketDropFactor * 1 + rateHikeFactor * 0.5),
         cumulativeReturns: base.cumulativeReturns - (marketDropFactor * 8 + rateHikeFactor * 3),
@@ -169,17 +189,23 @@ export default function PortfolioPage() {
   return (
     <div className="min-h-screen p-6">
       <div className="max-w-7xl mx-auto space-y-6">
-        {/* Portfolio Comparison Section */}
+        {/* Portfolio Comparison */}
         <div className="financial-card p-8 space-y-6 bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-lg">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <h2 className="text-xl font-semibold text-blue-900 border-b border-blue-200 pb-2">Portfolio Comparison</h2>
+            <h2 className="text-xl font-semibold text-blue-900 border-b border-blue-200 pb-2">
+              Portfolio Comparison
+            </h2>
             <div className="flex gap-4">
               <Select value={selectedPortfolioA} onValueChange={setSelectedPortfolioA}>
                 <SelectTrigger className="w-56 border-blue-200 focus:ring-blue-500 focus:border-blue-500">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {portfolios.map((p) => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}
+                  {portfolios.map((p) => (
+                    <SelectItem key={p.id} value={p.id}>
+                      {p.name}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
               <Select value={selectedPortfolioB} onValueChange={setSelectedPortfolioB}>
@@ -187,7 +213,11 @@ export default function PortfolioPage() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {portfolios.map((p) => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}
+                  {portfolios.map((p) => (
+                    <SelectItem key={p.id} value={p.id}>
+                      {p.name}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
               <Select value={selectedTimePeriod} onValueChange={setSelectedTimePeriod}>
@@ -196,7 +226,9 @@ export default function PortfolioPage() {
                 </SelectTrigger>
                 <SelectContent>
                   {timePeriodOptions.map((option) => (
-                    <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -206,9 +238,7 @@ export default function PortfolioPage() {
             {[selectedPortfolioA, selectedPortfolioB].map((selected, idx) => {
               const metrics = portfolioMetrics[selected as PortfolioId];
               const portfolio = portfolios.find((p) => p.id === selected);
-              
               if (!metrics || !portfolio) return null;
-              
               return (
                 <div key={idx} className="bg-white/80 backdrop-blur-sm rounded-xl p-5 border border-blue-200 hover:shadow-md transition-all duration-200">
                   <h4 className={`font-semibold text-lg mb-3 ${idx === 0 ? "text-blue-700" : "text-green-700"}`}>
@@ -247,24 +277,27 @@ export default function PortfolioPage() {
           <div className="flex justify-between items-center">
             <h2 className="text-xl font-semibold text-blue-900 border-b border-blue-200 pb-2">Correlation Matrix</h2>
             <div className="flex gap-4">
-              {/* Metric Selector */}
               <Select value={selectedMetric} onValueChange={setSelectedMetric}>
                 <SelectTrigger className="w-48 border-blue-200 focus:ring-blue-500 focus:border-blue-500">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {metricsList.map((m) => <SelectItem key={m.key} value={m.key}>{m.label}</SelectItem>)}
+                  {metricsList.map((m) => (
+                    <SelectItem key={m.key} value={m.key}>
+                      {m.label}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
-
-              {/* Time Period Selector */}
               <Select value={selectedTimePeriod} onValueChange={setSelectedTimePeriod}>
                 <SelectTrigger className="w-32 border-blue-200 focus:ring-blue-500 focus:border-blue-500">
                   <SelectValue placeholder="Select period" />
                 </SelectTrigger>
                 <SelectContent>
                   {timePeriodOptions.map((option) => (
-                    <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -303,118 +336,33 @@ export default function PortfolioPage() {
           </div>
         </div>
 
-
-      {/* Stress Testing */}
-<Card>
-  <CardHeader className="flex justify-between items-center">
-    <CardTitle className="flex items-center gap-2">
-      <Zap className="h-5 w-5" />
-      Stress Testing Scenarios
-    </CardTitle>
-
-    {/* 🔹 Portfolio selector for stress testing */}
-    <Select
-      value={selectedPortfolioA}
-      onValueChange={(v) => setSelectedPortfolioA(v)}
-    >
-      <SelectTrigger className="w-56">
-        <SelectValue placeholder="Select Portfolio" />
-      </SelectTrigger>
-      <SelectContent>
-        {portfolios.map((p) => (
-          <SelectItem key={p.id} value={p.id}>
-            {p.name}
-          </SelectItem>
-        ))}
-      </SelectContent>
-    </Select>
-  </CardHeader>
-
-  <CardContent>
-    {/* Sliders */}
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-6">
-      <div>
-        <label className="text-sm font-semibold text-blue-700">
-          Market Drop Scenario
-        </label>
-        <Slider
-          value={marketDropPercent}
-          onValueChange={setMarketDropPercent}
-          min={5}
-          max={50}
-          step={5}
-          className="w-full [&>span]:bg-blue-600 [&>span]:h-4 [&>span]:w-4"
-        />
-        <div className="flex justify-between text-xs text-blue-600 mt-2">
-          <span>5%</span>
-          <span className="font-bold">{marketDropPercent[0]}% Drop</span>
-          <span>50%</span>
-        </div>
-      </div>
-      <div>
-        <label className="text-sm font-semibold text-purple-700">
-          Interest Rate Hike
-        </label>
-        <Slider
-          value={rateHikePercent}
-          onValueChange={setRateHikePercent}
-          min={50}
-          max={500}
-          step={25}
-          className="w-full [&>span]:bg-purple-600 [&>span]:h-4 [&>span]:w-4"
-        />
-        <div className="flex justify-between text-xs text-purple-600 mt-2">
-          <span>50bps</span>
-          <span className="font-bold">{rateHikePercent[0]}bps Hike</span>
-          <span>500bps</span>
-        </div>
-      </div>
-    </div>
-
-    {/* Stress Test Results Table */}
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>Scenario</TableHead>
-          <TableHead>Daily Returns</TableHead>
-          <TableHead>Portfolio Price</TableHead>
-          <TableHead>Volatility</TableHead>
-          <TableHead>Tracking Error</TableHead>
-          <TableHead>Cumulative Returns</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {getStressTestResults(
-          selectedPortfolioA as PortfolioId,
-          marketDropPercent[0],
-          rateHikePercent[0]
-        ).map((result, idx) => (
-          <TableRow key={idx}>
-            <TableCell
-              className={`font-medium ${getScenarioColor(result.scenario)}`}
-            >
-              {result.scenario}
-            </TableCell>
-            <TableCell>
-              <div className="flex items-center gap-1">
-                {result.dailyReturns > 0 ? (
-                  <TrendingUp className="h-3 w-3 text-green-600" />
-                ) : (
-                  <TrendingDown className="h-3 w-3 text-red-600" />
-                )}
-                {result.dailyReturns.toFixed(2)}%
-
         {/* Stress Testing */}
         <div className="financial-card p-8 space-y-6 bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-lg">
-          <h2 className="text-xl font-semibold text-blue-900 border-b border-blue-200 pb-2 flex items-center gap-2">
-            <Zap className="h-5 w-5 text-blue-600" />
-            Stress Testing Scenarios
-          </h2>
-          
+          <div className="flex justify-between items-center">
+            <h2 className="text-xl font-semibold text-blue-900 border-b border-blue-200 pb-2 flex items-center gap-2">
+              <Zap className="h-5 w-5 text-blue-600" />
+              Stress Testing Scenarios
+            </h2>
+            <Select value={selectedPortfolioA} onValueChange={(v) => setSelectedPortfolioA(v)}>
+              <SelectTrigger className="w-56 border-blue-200 focus:ring-blue-500 focus:border-blue-500">
+                <SelectValue placeholder="Select Portfolio" />
+              </SelectTrigger>
+              <SelectContent>
+                {portfolios.map((p) => (
+                  <SelectItem key={p.id} value={p.id}>
+                    {p.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
           {/* Sliders */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div className="bg-white/80 backdrop-blur-sm rounded-xl p-6 border border-blue-200">
-              <label className="text-sm font-semibold text-blue-700 mb-4 block">Market Drop Scenario</label>
+              <label className="text-sm font-semibold text-blue-700 mb-4 block">
+                Market Drop Scenario
+              </label>
               <Slider
                 value={marketDropPercent}
                 onValueChange={setMarketDropPercent}
@@ -430,7 +378,9 @@ export default function PortfolioPage() {
               </div>
             </div>
             <div className="bg-white/80 backdrop-blur-sm rounded-xl p-6 border border-blue-200">
-              <label className="text-sm font-semibold text-purple-700 mb-4 block">Interest Rate Hike</label>
+              <label className="text-sm font-semibold text-purple-700 mb-4 block">
+                Interest Rate Hike
+              </label>
               <Slider
                 value={rateHikePercent}
                 onValueChange={setRateHikePercent}
@@ -443,20 +393,58 @@ export default function PortfolioPage() {
                 <span>50bps</span>
                 <span className="font-bold bg-purple-100 px-2 py-1 rounded">{rateHikePercent[0]}bps Hike</span>
                 <span>500bps</span>
-
               </div>
-            </TableCell>
-            <TableCell>{formatCurrency(result.portfolioPrice)}</TableCell>
-            <TableCell>{result.volatility.toFixed(2)}%</TableCell>
-            <TableCell>{result.trackingError.toFixed(2)}%</TableCell>
-            <TableCell>{result.cumulativeReturns.toFixed(2)}%</TableCell>
-          </TableRow>
-        ))}
-      </TableBody>
-    </Table>
-  </CardContent>
-</Card>
+            </div>
+          </div>
 
+          {/* Stress Test Results Table */}
+          <div className="bg-white/80 backdrop-blur-sm rounded-xl border border-blue-200 overflow-hidden mt-6">
+            <Table>
+              <TableHeader>
+                <TableRow className="bg-gradient-to-r from-blue-100 to-blue-50 border-b border-blue-200">
+                  <TableHead className="font-semibold text-blue-900">Scenario</TableHead>
+                  <TableHead className="font-semibold text-blue-900">Daily Returns</TableHead>
+                  <TableHead className="font-semibold text-blue-900">Portfolio Price</TableHead>
+                  <TableHead className="font-semibold text-blue-900">Volatility</TableHead>
+                  <TableHead className="font-semibold text-blue-900">Tracking Error</TableHead>
+                  <TableHead className="font-semibold text-blue-900">Cumulative Returns</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {stressTestResults.map((result, idx) => (
+                  <TableRow key={idx} className="hover:bg-blue-50/50 border-b border-blue-100">
+                    <TableCell className={`font-semibold ${getScenarioColor(result.scenario)}`}>
+                      {result.scenario}
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        {result.dailyReturns > 0 ? (
+                          <TrendingUp className="h-4 w-4 text-green-600" />
+                        ) : (
+                          <TrendingDown className="h-4 w-4 text-red-600" />
+                        )}
+                        <span className="font-medium">{result.dailyReturns.toFixed(2)}%</span>
+                      </div>
+                    </TableCell>
+                    <TableCell className="font-medium text-gray-700">
+                      {formatCurrency(result.portfolioPrice)}
+                    </TableCell>
+                    <TableCell className="font-medium text-gray-700">
+                      {result.volatility.toFixed(2)}%
+                    </TableCell>
+                    <TableCell className="font-medium text-gray-700">
+                      {result.trackingError.toFixed(2)}%
+                    </TableCell>
+                    <TableCell className="font-medium text-gray-700">
+                      {result.cumulativeReturns.toFixed(2)}%
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

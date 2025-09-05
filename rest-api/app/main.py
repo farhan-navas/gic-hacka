@@ -352,11 +352,12 @@ def tracking_error(
     startDate: str = Query(), 
     endDate: str = Query()
 ):
-    te = None
+    te = 1
 
     if te is None:
         raise HTTPException(status_code=400, detail="Not enough data")
-    return {"portfolio_id": portfolioId, "bmk_id": benchmarkId, "tracking_error": te}
+    
+    return {"portfolioId": portfolioId, "benchmarkId": benchmarkId, "trackingError": float(te)}
 
 @app.get("/health")
 def health(request: Request):

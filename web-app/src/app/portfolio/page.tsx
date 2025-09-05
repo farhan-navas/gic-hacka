@@ -303,6 +303,107 @@ export default function PortfolioPage() {
           </div>
         </div>
 
+
+      {/* Stress Testing */}
+<Card>
+  <CardHeader className="flex justify-between items-center">
+    <CardTitle className="flex items-center gap-2">
+      <Zap className="h-5 w-5" />
+      Stress Testing Scenarios
+    </CardTitle>
+
+    {/* 🔹 Portfolio selector for stress testing */}
+    <Select
+      value={selectedPortfolioA}
+      onValueChange={(v) => setSelectedPortfolioA(v)}
+    >
+      <SelectTrigger className="w-56">
+        <SelectValue placeholder="Select Portfolio" />
+      </SelectTrigger>
+      <SelectContent>
+        {portfolios.map((p) => (
+          <SelectItem key={p.id} value={p.id}>
+            {p.name}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+  </CardHeader>
+
+  <CardContent>
+    {/* Sliders */}
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-6">
+      <div>
+        <label className="text-sm font-semibold text-blue-700">
+          Market Drop Scenario
+        </label>
+        <Slider
+          value={marketDropPercent}
+          onValueChange={setMarketDropPercent}
+          min={5}
+          max={50}
+          step={5}
+          className="w-full [&>span]:bg-blue-600 [&>span]:h-4 [&>span]:w-4"
+        />
+        <div className="flex justify-between text-xs text-blue-600 mt-2">
+          <span>5%</span>
+          <span className="font-bold">{marketDropPercent[0]}% Drop</span>
+          <span>50%</span>
+        </div>
+      </div>
+      <div>
+        <label className="text-sm font-semibold text-purple-700">
+          Interest Rate Hike
+        </label>
+        <Slider
+          value={rateHikePercent}
+          onValueChange={setRateHikePercent}
+          min={50}
+          max={500}
+          step={25}
+          className="w-full [&>span]:bg-purple-600 [&>span]:h-4 [&>span]:w-4"
+        />
+        <div className="flex justify-between text-xs text-purple-600 mt-2">
+          <span>50bps</span>
+          <span className="font-bold">{rateHikePercent[0]}bps Hike</span>
+          <span>500bps</span>
+        </div>
+      </div>
+    </div>
+
+    {/* Stress Test Results Table */}
+    <Table>
+      <TableHeader>
+        <TableRow>
+          <TableHead>Scenario</TableHead>
+          <TableHead>Daily Returns</TableHead>
+          <TableHead>Portfolio Price</TableHead>
+          <TableHead>Volatility</TableHead>
+          <TableHead>Tracking Error</TableHead>
+          <TableHead>Cumulative Returns</TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {getStressTestResults(
+          selectedPortfolioA as PortfolioId,
+          marketDropPercent[0],
+          rateHikePercent[0]
+        ).map((result, idx) => (
+          <TableRow key={idx}>
+            <TableCell
+              className={`font-medium ${getScenarioColor(result.scenario)}`}
+            >
+              {result.scenario}
+            </TableCell>
+            <TableCell>
+              <div className="flex items-center gap-1">
+                {result.dailyReturns > 0 ? (
+                  <TrendingUp className="h-3 w-3 text-green-600" />
+                ) : (
+                  <TrendingDown className="h-3 w-3 text-red-600" />
+                )}
+                {result.dailyReturns.toFixed(2)}%
+
         {/* Stress Testing */}
         <div className="financial-card p-8 space-y-6 bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-lg">
           <h2 className="text-xl font-semibold text-blue-900 border-b border-blue-200 pb-2 flex items-center gap-2">
@@ -342,58 +443,20 @@ export default function PortfolioPage() {
                 <span>50bps</span>
                 <span className="font-bold bg-purple-100 px-2 py-1 rounded">{rateHikePercent[0]}bps Hike</span>
                 <span>500bps</span>
-              </div>
-            </div>
-          </div>
 
-          {/* Stress Test Results Table */}
-          <div className="bg-white/80 backdrop-blur-sm rounded-xl border border-blue-200 overflow-hidden">
-            <Table>
-              <TableHeader>
-                <TableRow className="bg-gradient-to-r from-blue-100 to-blue-50 border-b border-blue-200">
-                  <TableHead className="font-semibold text-blue-900">Scenario</TableHead>
-                  <TableHead className="font-semibold text-blue-900">Daily Returns</TableHead>
-                  <TableHead className="font-semibold text-blue-900">Portfolio Price</TableHead>
-                  <TableHead className="font-semibold text-blue-900">Volatility</TableHead>
-                  <TableHead className="font-semibold text-blue-900">Tracking Error</TableHead>
-                  <TableHead className="font-semibold text-blue-900">Cumulative Returns</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {stressTestResults.map((result, idx) => (
-                  <TableRow key={idx} className="hover:bg-blue-50/50 border-b border-blue-100">
-                    <TableCell className={`font-semibold ${getScenarioColor(result.scenario)}`}>
-                      {result.scenario}
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        {result.dailyReturns > 0 ? (
-                          <TrendingUp className="h-4 w-4 text-green-600" />
-                        ) : (
-                          <TrendingDown className="h-4 w-4 text-red-600" />
-                        )}
-                        <span className="font-medium">{result.dailyReturns.toFixed(2)}%</span>
-                      </div>
-                    </TableCell>
-                    <TableCell className="font-medium text-gray-700">
-                      {formatCurrency(result.portfolioPrice)}
-                    </TableCell>
-                    <TableCell className="font-medium text-gray-700">
-                      {result.volatility.toFixed(2)}%
-                    </TableCell>
-                    <TableCell className="font-medium text-gray-700">
-                      {result.trackingError.toFixed(2)}%
-                    </TableCell>
-                    <TableCell className="font-medium text-gray-700">
-                      {result.cumulativeReturns.toFixed(2)}%
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-        </div>
-      </div>
+              </div>
+            </TableCell>
+            <TableCell>{formatCurrency(result.portfolioPrice)}</TableCell>
+            <TableCell>{result.volatility.toFixed(2)}%</TableCell>
+            <TableCell>{result.trackingError.toFixed(2)}%</TableCell>
+            <TableCell>{result.cumulativeReturns.toFixed(2)}%</TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
+  </CardContent>
+</Card>
+
     </div>
   );
 }

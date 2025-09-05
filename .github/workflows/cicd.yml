@@ -2,7 +2,7 @@ name: CI/CD
 
 on:
   push:
-    branches: [main, features/docker]
+    branches: [main, features/compute-api]
 
 permissions:
   contents: read
@@ -54,7 +54,7 @@ jobs:
 
             docker stop rest-api || true && docker rm rest-api || true
 
-            docker run -d --name rest-api -p 8080:8080 ghcr.io/${{ github.repository }}/rest-api:latest
+            docker run -d --name rest-api -p 8000:8000 ghcr.io/${{ github.repository }}/rest-api:latest
 
           # commented out because we expose as 8080 on host
           # docker run -d --name rest-api -p 5000:5000 ghcr.io/${{ github.repository }}/rest-api:latest

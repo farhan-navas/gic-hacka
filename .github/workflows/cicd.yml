@@ -56,7 +56,7 @@ jobs:
             cd "$HOME/app"
             sudo dnf update -y
 
-            python3 -m venv .venv
+            python3.13 -m venv .venv
             . .venv/bin/activate
 
             pip3 install -r requirements.txt

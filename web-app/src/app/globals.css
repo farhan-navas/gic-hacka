@@ -1,9 +1,9 @@
 @import "tailwindcss";
 
-:root {
+/* :root {
   --background: #ffffff;
   --foreground: #171717;
-}
+} */
 
 @theme inline {
   --color-background: var(--background);
@@ -12,15 +12,155 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
+/* @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;
   }
-}
+} */
 
 body {
-  background: var(--background);
+  /* background: var(--background); */
+  background: hsl(var(--surface-muted));
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+/* globals.css */
+:root {
+  /* brand */
+  --brand-ink: 217 33% 17%;     /* deep navy for titles/text */
+  --brand-chip: 220 76% 36%;    /* navy pill background */
+  --brand-chip-ink: 0 0% 100%;
+
+  /* semantic statuses */
+  --status-pass-bg: 220 76% 36%;
+  --status-pass-fg: 0 0% 100%;
+  --status-warning-bg: 32 100% 50%;
+  --status-warning-fg: 0 0% 100%;
+  --status-fail-bg: 0 74% 55%;
+  --status-fail-fg: 0 0% 100%;
+
+  /* surface & borders */
+  --surface: 0 0% 100%;
+  --surface-muted: 210 20% 98%;
+  --border: 215 16% 90%;
+  --shadow: 215 18% 15% / 0.06;
+
+  /* chart palette (used in your component via hsl(var(--chart-x))) */
+  --chart-1: 210 90% 40%;  /* portfolio line (blue) */
+  --chart-2: 160 65% 38%;  /* benchmark line (green) */
+  --chart-3: 0 70% 55%;    /* volatility (red) */
+}
+
+/* Card polish (shadcn Card) */
+.card, .rounded-lg, .rounded-md {
+  border: 1px solid hsl(var(--border));
+  box-shadow: 0 1px 2px 0 hsl(var(--shadow));
+  border-radius: 0.875rem; /* ~14px, close to the mock */
+}
+
+/* Card margin for grid layout */
+.card {
+  margin-bottom: 1rem;
+}
+
+/* Section titles */
+h1, h2, .card-title, .text-2xl {
+  color: hsl(var(--brand-ink));
+}
+
+/* Badge status pills */
+.status-pass {
+  background-color: hsl(var(--status-pass-bg)) !important;
+  color: hsl(var(--status-pass-fg)) !important;
+  border-color: transparent !important;
+}
+.status-warning {
+  background-color: hsl(var(--status-warning-bg)) !important;
+  color: hsl(var(--status-warning-fg)) !important;
+  border-color: transparent !important;
+}
+.status-fail {
+  background-color: hsl(var(--status-fail-bg)) !important;
+  color: hsl(var(--status-fail-fg)) !important;
+  border-color: transparent !important;
+}
+
+/* “Outline” badge look when you use <Badge variant="outline"> */
+.badge-outline {
+  border: 1px solid hsl(var(--border));
+  background: hsl(var(--surface));
+}
+
+/* Controls row (filters + actions) */
+.dashboard-controls .select-trigger,
+.dashboard-controls .btn {
+  height: 36px;
+  border-radius: 0.625rem;
+}
+.select-trigger { border: 1px solid hsl(var(--border)); }
+
+/* Dashboard wrapper */
+.dashboard-root {
+  padding: 2rem 2.5rem;   /* top/bottom, left/right */
+}
+
+/* Vertical spacing between cards and sections */
+.dashboard-root > * + * {
+  margin-top: 2rem;
+}
+
+/* Table aesthetics */
+.table thead tr {
+  background: hsl(var(--surface-muted));
+}
+.table th {
+  font-weight: 600;
+  color: hsl(var(--brand-ink));
+}
+.table td, .table th {
+  border-bottom: 1px solid hsl(var(--border));
+}
+.table tr:last-child td { border-bottom: 0; }
+
+/* Recharts tweaks */
+.recharts-cartesian-grid-horizontal line,
+.recharts-cartesian-grid-vertical line {
+  stroke: #e6e9ef; /* soft grid */
+}
+.recharts-tooltip-wrapper .recharts-default-tooltip {
+  border: 1px solid hsl(var(--border));
+  box-shadow: 0 8px 24px 0 hsl(var(--shadow));
+}
+
+/* Area fill for volatility */
+.area-volatile {
+  /* fill from --chart-3 with ~20% alpha; fallback for browsers without / syntax */
+  fill: color(from hsl(var(--chart-3)) srgb r g b / 0.18);
+  stroke: hsl(var(--chart-3));
+}
+
+/* Small utility to right-align numeric table cells */
+.td-num { text-align: right; }
+
+/* Scheduled reports list tiles */
+.schedule-tile {
+  border: 1px solid hsl(var(--border));
+  border-radius: 0.75rem;
+  padding: 0.75rem;
+}
+
+/* Buttons (outline) */
+button[data-variant="outline"] {
+  border: 1px solid hsl(var(--border));
+}
+
+/* Force opaque dropdown menu */
+[data-radix-popper-content-wrapper] {
+  background-color: white !important;  /* fully opaque */
+  backdrop-filter: none !important;    /* remove blur */
+  border: 1px solid hsl(var(--border));
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 12px hsl(var(--shadow));
 }

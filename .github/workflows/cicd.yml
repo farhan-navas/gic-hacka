@@ -16,18 +16,18 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # Safer: stop only the uvicorn serving on our port, scoped to our user
-      - name: Prep remote
-        uses: appleboy/ssh-action@v0.1.10
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.EC2_SSH_KEY }}
-          script: |
-            set -e
-            pkill -u "$USER" -f "uvicorn .*--port 8000" || true
-            rm -rf "$HOME/app"
-            mkdir -p "$HOME/app"
+      # # Safer: stop only the uvicorn serving on our port, scoped to our user
+      # - name: Prep remote
+      #   uses: appleboy/ssh-action@v0.1.10
+      #   with:
+      #     host: ${{ secrets.EC2_HOST }}
+      #     username: ${{ secrets.EC2_USER }}
+      #     key: ${{ secrets.EC2_SSH_KEY }}
+      #     script: |
+      #       set -e
+      #       pkill -u "$USER" -f "uvicorn .*--port 8000" || true
+      #       rm -rf "$HOME/app"
+      #       mkdir -p "$HOME/app"
 
       - name: Copy application files
         uses: appleboy/scp-action@v0.1.4

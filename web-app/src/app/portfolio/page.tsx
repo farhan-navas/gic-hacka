@@ -198,12 +198,25 @@ export default function PortfolioPage() {
       <Card>
         <CardHeader className="flex justify-between items-center">
           <CardTitle>Correlation Matrix</CardTitle>
-          <Select value={selectedMetric} onValueChange={setSelectedMetric}>
-            <SelectTrigger className="w-48"><SelectValue /></SelectTrigger>
-            <SelectContent>
-              {metricsList.map((m) => <SelectItem key={m.key} value={m.key}>{m.label}</SelectItem>)}
-            </SelectContent>
-          </Select>
+          <div className="flex gap-4">
+            {/* Metric Selector */}
+            <Select value={selectedMetric} onValueChange={setSelectedMetric}>
+              <SelectTrigger className="w-48"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                {metricsList.map((m) => <SelectItem key={m.key} value={m.key}>{m.label}</SelectItem>)}
+              </SelectContent>
+            </Select>
+
+            {/* Time Period Selector */}
+            <Select value={selectedTimePeriod} onValueChange={setSelectedTimePeriod}>
+              <SelectTrigger className="w-32"><SelectValue placeholder="Select period" /></SelectTrigger>
+              <SelectContent>
+                {timePeriodOptions.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         </CardHeader>
         <CardContent>
           <table className="min-w-full border text-sm">

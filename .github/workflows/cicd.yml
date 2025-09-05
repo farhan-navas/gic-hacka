@@ -55,12 +55,10 @@ jobs:
             set -e
             cd "$HOME/app"
             sudo dnf update -y
-            sudo dnf install -y python3
 
             python3 -m venv .venv
             . .venv/bin/activate
 
-            pip3 install --upgrade pip
             pip3 install -r requirements.txt
 
             # Start a production uvicorn (adjust module:app to your entry)

@@ -277,16 +277,73 @@ def volatility(
 
 @app.get("/correlation", response_model=CorrelationResponse)
 def correlation(
-    portfolioId1: str = Query(),
-    portfolioId2: str = Query(),
-    startDate: str = Query(), 
-    endDate: str = Query()
+    portfolioId1: str = Query(...),
+    portfolioId2: str = Query(...),
+    startDate: str = Query(...),
+    endDate: str = Query(...),
 ):
-    corr = 0
+    try:
+        Date.fromisoformat(startDate)
+        Date.fromisoformat(endDate)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="startDate/endDate must be YYYY-MM-DD")
+    if startDate > endDate:
+        raise HTTPException(status_code=400, detail="startDate must be <= endDate")
 
-    if corr is None:
-        raise HTTPException(status_code=400, detail="Not enough data")
-    return {"portfolio_id": portfolioId1, "bmk_id": portfolioId2, "correlation": corr}
+    mp1 = PORTFOLIO_PRICE_CACHE.get(int(portfolioId1))
+    mp2 = PORTFOLIO_PRICE_CACHE.get(int(portfolioId2))
+    if not mp1 or not mp2:
+        raise HTTPException(status_code=404, detail="Unknown portfolioId(s) or no prices cached")
+
+    d1 = sorted(mp1.keys()) 
+    d2 = sorted(mp2.keys())
+
+    # window bounds
+    lo1, hi1 = bisect_left(d1, startDate), bisect_right(d1, endDate)
+    lo2, hi2 = bisect_left(d2, startDate), bisect_right(d2, endDate)
+    if hi1 <= lo1 or hi2 <= lo2:
+        raise HTTPException(status_code=404, detail="No trading dates within the given range")
+
+    # per spec, need a price from the trading day BEFORE start to compute the first return
+    if lo1 == 0 or lo2 == 0:
+        raise HTTPException(status_code=400, detail="Missing prior trading day before startDate for one or both portfolios")
+
+    # --- build daily returns in window (using previous trading day's price) ---
+    r1 = {}
+    for i in range(lo1, hi1):
+        prev_p = float(mp1[d1[i - 1]])
+        cur_p  = float(mp1[d1[i]])
+        if prev_p == 0:
+            raise HTTPException(status_code=400, detail="Zero base price encountered in portfolio 1")
+        r1[d1[i]] = (cur_p - prev_p) / prev_p
+
+    r2 = {}
+    for i in range(lo2, hi2):
+        prev_p = float(mp2[d2[i - 1]])
+        cur_p  = float(mp2[d2[i]])
+        if prev_p == 0:
+            raise HTTPException(status_code=400, detail="Zero base price encountered in portfolio 2")
+        r2[d2[i]] = (cur_p - prev_p) / prev_p
+
+    # --- align on overlapping dates ---
+    common = sorted(set(r1.keys()) & set(r2.keys()))
+    if len(common) < 2:  # need at least 2 paired observations
+        raise HTTPException(status_code=400, detail="Not enough overlapping daily returns to compute correlation")
+
+    x = np.array([r1[d] for d in common], dtype=float)
+    y = np.array([r2[d] for d in common], dtype=float)
+
+    # --- correlation via centered sums (matches slide formula) ---
+    x_c = x - x.mean()
+    y_c = y - y.mean()
+    num = float((x_c * y_c).sum())
+    den = float(np.sqrt((x_c * x_c).sum()) * np.sqrt((y_c * y_c).sum()))
+    if den == 0.0:
+        raise HTTPException(status_code=400, detail="One series has zero variance; correlation undefined")
+
+    corr = num / den
+
+    return {"portfolioId1": portfolioId1, "portfolioId2": portfolioId2, "correlation": float(corr)}
 
 @app.get("/tracking-error", response_model=TrackingErrorResponse)
 def tracking_error(

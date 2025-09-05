@@ -20,6 +20,7 @@ Additionally, Challenge 1 solution must be deployed into the provided EC2 instan
 |-----------------|--------------------------------------------------------------------|
 | Host DNS (SSH)  | `2025-app-8-ssh-e045ac330bc54513.elb.ap-southeast-1.amazonaws.com` |
 | Host DNS (HTTP) | `2025-app-8-http-2027981724.ap-southeast-1.elb.amazonaws.com`      |
+| Direct DNS      | `ec2-54-169-224-22.ap-southeast-1.compute.amazonaws.com`           |
 | Username        | `ec2-user`                                                         |
 | OS              | `Amazon Linux`                                                     |
 | Allowed Ports   | `22, 8000`                                                         |

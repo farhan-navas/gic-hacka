@@ -25,7 +25,7 @@ export default function UploadBox({ onFileSelected }: UploadBoxProps) {
       role="button"
     >
       <p className="mb-2">Drag & drop or click to select a PDF</p>
-      <p className="text-sm text-muted-foreground">PDF only • Max 10MB</p>
+      <p className="text-sm text-muted-foreground">PDF only</p>
       <input
         ref={inputRef}
         type="file"

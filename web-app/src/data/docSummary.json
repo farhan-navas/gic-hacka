@@ -1,0 +1,104 @@
+{
+    "document": {
+        "id": "IG0001",
+        "title": "Investment Guideline",
+        "company": "CodeToImpact Pte Ltd (CPL)",
+        "version": "1.0",
+        "effective_date": "2025-09-03",
+        "source_pdf": "InvestmentGuideline_IG0001.pdf"
+    },
+    "summary_points": [
+        "Company-wide guideline governing all investment activities and personnel.",
+        "Absolute restrictions on investing in entities from embargoed jurisdictions (currently Russia and North Korea).",
+        "Prohibition specifically covers equity/stock instruments of entities domiciled in embargoed countries.",
+        "Mandatory automated pre-trade embargo screening with immediate breach reporting to the CCO.",
+        "Compliance aligned with UNSC sanctions, MAS guidance, and applicable local regulations in operating jurisdictions.",
+        "Robust compliance framework with pre- and post-trade monitoring, periodic staff training, and independent audits.",
+        "All trades logged in a surveillance system; monthly compliance reports submitted to the Board.",
+        "Formal escalation: suspected/confirmed breaches → CCO → possible regulator notification; disciplinary actions up to termination.",
+        "Guideline reviewed at least annually; amendments require Board approval and prompt communication.",
+        "Recordkeeping for approvals, reports, and logs retained for a minimum of seven years; CCO is final interpreter of ambiguities."
+    ],
+    "actionable_steps": [
+        {
+            "step": "Stand up (or validate) an automated embargo-check service in the order management workflow before trade execution.",
+            "linked_rule": {
+                "category": "Investment Restrictions – Embargoed Countries",
+                "rule": "Compliance measures",
+                "value": "Automated embargo-check before trade execution"
+            }
+        },
+        {
+            "step": "Publish and maintain a machine-readable embargo list synced to UNSC, MAS, and local regulator updates.",
+            "linked_rule": {
+                "category": "Investment Restrictions – Embargoed Countries",
+                "rule": "Compliance measures",
+                "value": "Maintain up-to-date machine-readable embargo list"
+            }
+        },
+        {
+            "step": "Configure the trade surveillance platform to capture all orders/executions and generate a monthly Board report.",
+            "linked_rule": {
+                "category": "Reporting and Monitoring",
+                "rule": "Trade surveillance logging",
+                "value": "Trade surveillance logging and monthly reporting"
+            }
+        },
+        {
+            "step": "Define an incident runbook for embargo breaches with immediate notification to the CCO and decision tree for regulatory escalation.",
+            "linked_rule": {
+                "category": "Reporting and Monitoring",
+                "rule": "Escalation procedures",
+                "value": "Incident runbook with CCO notification and escalation path"
+            }
+        },
+        {
+            "step": "Schedule periodic (e.g., quarterly) staff training on sanctions and embargo compliance; record attendance.",
+            "linked_rule": {
+                "category": "Legal and Regulatory Considerations",
+                "rule": "Risk management framework",
+                "value": "Regular staff sanctions compliance training"
+            }
+        },
+        {
+            "step": "Engage an independent auditor annually to review the effectiveness of sanctions controls and surveillance.",
+            "linked_rule": {
+                "category": "Legal and Regulatory Considerations",
+                "rule": "Risk management framework",
+                "value": "Annual independent sanctions compliance audit"
+            }
+        },
+        {
+            "step": "Implement pre-trade and post-trade controls (hard blocks, alerts, and attestations) with audit trails.",
+            "linked_rule": {
+                "category": "Legal and Regulatory Considerations",
+                "rule": "Risk management framework",
+                "value": "Pre- and post-trade compliance controls with audit trails"
+            }
+        },
+        {
+            "step": "Codify a change-management process so any amendments are drafted, approved by the Board, and communicated within 5 business days.",
+            "linked_rule": {
+                "category": "Amendments and Review",
+                "rule": "Approval and communication",
+                "value": "Change-management process with Board approval and communication"
+            }
+        },
+        {
+            "step": "Enforce a records retention policy of 7 years for approvals, compliance reports, and monitoring logs.",
+            "linked_rule": {
+                "category": "Miscellaneous Provisions",
+                "rule": "Recordkeeping retention",
+                "value": "7-year records retention policy"
+            }
+        },
+        {
+            "step": "Create dashboards for embargo screening hit rates, false positives, and time-to-escalate KPIs.",
+            "linked_rule": {
+                "category": "Reporting and Monitoring",
+                "rule": "Trade surveillance logging",
+                "value": "Dashboards for screening metrics and escalation KPIs"
+            }
+        }
+    ]
+}

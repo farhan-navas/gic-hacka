@@ -1,0 +1,27 @@
+{
+  "contexts": {},
+  "guidelines": [
+    {
+      "category": "Trading",
+      "rule": "Trading Limit",
+      "value": "4,000,000"
+    },
+    {
+      "category": "Trading",
+      "rule": "Trading Limit",
+      "value": "4,000,000"
+    },
+    {
+      "category": "Trading",
+      "rule": "Trading Limit",
+      "value": "4,000,000"
+    },
+    {
+      "category": "Trading",
+      "rule": "Trading Limit",
+      "value": "4,000,000"
+    }
+  ],
+  "pendingActions": [],
+  "feedback": []
+}

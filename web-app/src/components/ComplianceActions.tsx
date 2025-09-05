@@ -4,13 +4,15 @@ import { useEffect, useState } from "react";
 
 interface Props {
   actions: string[];
-  onDecision: (action: string, accepted: boolean) => void;
+  onDecision: (action: string, accepted: boolean, feedback?: string) => void;
+  requireFeedbackOnDecline?: boolean; // New prop to control feedback requirement
 }
 
-export default function ComplianceActions({ actions, onDecision }: Props) {
+export default function ComplianceActions({ actions, onDecision, requireFeedbackOnDecline = true }: Props) {
   // modal state
   const [acceptOpen, setAcceptOpen] = useState(false);
   const [declineOpen, setDeclineOpen] = useState(false);
+  const [confirmDeclineOpen, setConfirmDeclineOpen] = useState(false); // New state for simple confirmation
   const [currentAction, setCurrentAction] = useState<string>("");
   const [feedback, setFeedback] = useState("");
 
@@ -20,6 +22,7 @@ export default function ComplianceActions({ actions, onDecision }: Props) {
       if (e.key === "Escape") {
         setAcceptOpen(false);
         setDeclineOpen(false);
+        setConfirmDeclineOpen(false);
       }
     }
     window.addEventListener("keydown", onKey);
@@ -32,8 +35,12 @@ export default function ComplianceActions({ actions, onDecision }: Props) {
   }
   function openDecline(action: string) {
     setCurrentAction(action);
-    setFeedback("");
-    setDeclineOpen(true);
+    if (requireFeedbackOnDecline) {
+      setFeedback("");
+      setDeclineOpen(true);
+    } else {
+      setConfirmDeclineOpen(true);
+    }
   }
 
   return (
@@ -141,12 +148,8 @@ export default function ComplianceActions({ actions, onDecision }: Props) {
                 className="px-3 py-1.5 rounded-md bg-green-600 text-white text-sm font-medium hover:bg-green-700 disabled:opacity-50"
                 disabled={!feedback.trim()}
                 onClick={() => {
-                  // If you later extend onDecision to accept feedback, pass it there.
-                  // For now we just call the existing signature and you can persist feedback elsewhere.
                   setDeclineOpen(false);
-                  onDecision(currentAction, false);
-                  // Optional: dispatch a custom event with feedback for a parent listener
-                  // window.dispatchEvent(new CustomEvent("compliance:declineFeedback", { detail: { action: currentAction, feedback: feedback.trim() }}));
+                  onDecision(currentAction, false, feedback.trim());
                 }}
               >
                 Submit Feedback
@@ -154,6 +157,49 @@ export default function ComplianceActions({ actions, onDecision }: Props) {
               <button
                 className="px-3 py-1.5 rounded-md bg-gray-200 text-gray-900 text-sm font-medium hover:bg-gray-300"
                 onClick={() => setDeclineOpen(false)}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ===== Simple Decline Confirmation Modal (no feedback) ===== */}
+      {confirmDeclineOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
+          role="dialog"
+          aria-modal="true"
+          onClick={() => setConfirmDeclineOpen(false)}
+        >
+          <div
+            className="financial-card w-full max-w-lg overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="border-b border-border px-5 py-4">
+              <h3 className="text-lg font-semibold">Decline Action</h3>
+            </div>
+            <div className="px-5 py-4">
+              <p className="text-muted-foreground">Are you sure you want to decline this action?</p>
+              <p className="mt-2 font-medium">{currentAction}</p>
+              <p className="mt-3 text-sm text-muted-foreground">
+                This action will be removed from your pending list.
+              </p>
+            </div>
+            <div className="border-t border-border px-5 py-4 flex justify-end gap-2">
+              <button
+                className="px-3 py-1.5 rounded-md bg-red-600 text-white text-sm font-medium hover:bg-red-700"
+                onClick={() => {
+                  setConfirmDeclineOpen(false);
+                  onDecision(currentAction, false);
+                }}
+              >
+                Yes, Decline
+              </button>
+              <button
+                className="px-3 py-1.5 rounded-md bg-gray-200 text-gray-900 text-sm font-medium hover:bg-gray-300"
+                onClick={() => setConfirmDeclineOpen(false)}
               >
                 Cancel
               </button>

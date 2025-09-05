@@ -12,8 +12,8 @@ RUN python -m venv /opt/venv && /opt/venv/bin/pip install --no-cache-dir -r requ
 ENV PATH="/opt/venv/bin:${PATH}"
 
 COPY app/ ./app/
-EXPOSE 8080
-CMD ["uvicorn","app.main:app","--host","0.0.0.0","--port","8080","--workers","2"]
+EXPOSE 8000
+CMD ["uvicorn","app.main:app","--host","0.0.0.0","--port","8000","--workers","2"]
 
 ## dockerfile from chat
 # ---- Build C++ library

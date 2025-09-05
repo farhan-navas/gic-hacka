@@ -1,9 +1,14 @@
 from fastapi import FastAPI, HTTPException
 from psycopg2.pool import SimpleConnectionPool
-from compute import (
+from services.compute import (
     compute_portfolio_price, compute_daily_return, compute_cumulative_return,
     compute_volatility, compute_correlation, compute_tracking_error
 )
+
+from db.config import DB_CONFIG
+
+min_connections = 1
+max_connections = 10
 
 DSN = "dbname=your_db user=your_user password=your_password host=your_host port=5432"
 
@@ -13,8 +18,8 @@ app = FastAPI(title="GIC Risk Metrics API", version="1.0")
 @app.on_event("startup")
 def startup():
     global pool
-    pool = SimpleConnectionPool(1, 10, dsn=DSN)
-
+    pool = SimpleConnectionPool(min_connections, max_connections, **DB_CONFIG)
+    
 @app.on_event("shutdown")
 def shutdown():
     if pool:

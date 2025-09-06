@@ -2,7 +2,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { bus } from "@/lib/bus";
 
-const SECRET = process.env.OPS_SHARED_SECRET ?? "devsecret";
+const SECRET = "devsecret";
 
 export async function POST(req: NextRequest) {
   const hdr = req.headers.get("x-ops-secret");

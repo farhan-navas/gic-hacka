@@ -8,14 +8,32 @@ const FASTAPI_BASE =
   "2025-app-8-http-2027981724.ap-southeast-1.elb.amazonaws.com";
 
 const tools = {
-  get_health: async () => (await fetch(`${FASTAPI_BASE}/health`)).json(),
-  metrics: async () => (await fetch(`${FASTAPI_BASE}/metrics`)).json(),
-  recent_errors: async (args: any) =>
-    (
-      await fetch(
+  get_health: async () => {
+    try {
+      const response = await fetch(`${FASTAPI_BASE}/health`);
+      return await response.json();
+    } catch (error) {
+      return { error: "Failed to fetch health", details: error instanceof Error ? error.message : String(error) };
+    }
+  },
+  metrics: async () => {
+    try {
+      const response = await fetch(`${FASTAPI_BASE}/metrics`);
+      return await response.json();
+    } catch (error) {
+      return { error: "Failed to fetch metrics", details: error instanceof Error ? error.message : String(error) };
+    }
+  },
+  recent_errors: async (args: any) => {
+    try {
+      const response = await fetch(
         `${FASTAPI_BASE}/errors?since=${encodeURIComponent(args.since)}`
-      )
-    ).json(),
+      );
+      return await response.json();
+    } catch (error) {
+      return { error: "Failed to fetch recent errors", details: error instanceof Error ? error.message : String(error) };
+    }
+  },
 };
 
 export async function runAgentOnce(trigger?: any) {

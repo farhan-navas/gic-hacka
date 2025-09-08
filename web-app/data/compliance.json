@@ -20,6 +20,21 @@
       "category": "Trading",
       "rule": "Trading Limit",
       "value": "4,000,000"
+    },
+    {
+      "category": "Trading",
+      "rule": "Trading Limit",
+      "value": "4,000,000"
+    },
+    {
+      "category": "General",
+      "rule": "Introduce quarterly compliance audits",
+      "value": "active"
+    },
+    {
+      "category": "General",
+      "rule": "Enforce strong encryption both at rest and in transit to comply with PDPA and GDPR standards.",
+      "value": "active"
     }
   ],
   "pendingActions": [],

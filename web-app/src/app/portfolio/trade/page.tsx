@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useState } from "react";
@@ -11,7 +12,6 @@ import {
 } from "@/components/ui/table";
 
 export default function PortfolioManager() {
-  
   const initialPortfolios: any = {
     "Global Equity Fund": {
       AAPL: { shares: 100, price: 150 },
@@ -25,13 +25,17 @@ export default function PortfolioManager() {
     },
   };
 
-  const [selectedPortfolio, setSelectedPortfolio] = useState("Global Equity Fund");
-  const [portfolio, setPortfolio] = useState(initialPortfolios["Global Equity Fund"]);
+  const [selectedPortfolio, setSelectedPortfolio] =
+    useState("Global Equity Fund");
+  const [portfolio, setPortfolio] = useState(
+    initialPortfolios["Global Equity Fund"]
+  );
   const [tradeTicker, setTradeTicker] = useState("AAPL");
   const [tradeShares, setTradeShares] = useState(0);
-  const [tradeResult, setTradeResult] = useState<
-    { status: string; reason?: string } | null
-  >(null);
+  const [tradeResult, setTradeResult] = useState<{
+    status: string;
+    reason?: string;
+  } | null>(null);
 
   // --- Dynamic metrics (fake calculations for demo) ---
   const [metrics, setMetrics] = useState({
@@ -54,28 +58,27 @@ export default function PortfolioManager() {
       return;
     }
 
-    
-    if (action === "BUY") {
-      holding.shares += tradeShares;
-    } else {
-      holding.shares = Math.max(0, holding.shares - tradeShares);
-    }
     holding.value = holding.shares * holding.price;
     newPortfolio[tradeTicker] = holding;
 
-    
-    let newMetrics = { ...metrics };
-    const tradeImpact = tradeShares / 100; 
+    const newMetrics = { ...metrics };
+    const tradeImpact = tradeShares / 100;
 
-    newMetrics.volatility = Math.min(0.20, metrics.volatility + tradeImpact * 0.001);
+    newMetrics.volatility = Math.min(
+      0.2,
+      metrics.volatility + tradeImpact * 0.001
+    );
     newMetrics.sharpe = Math.max(0.3, metrics.sharpe - tradeImpact * 0.0005);
-    newMetrics.tracking_error = Math.min(0.03, metrics.tracking_error + tradeImpact * 0.0003);
-    newMetrics.max_drawdown = Math.max(-0.20, metrics.max_drawdown - tradeImpact * 0.0005);
+    newMetrics.tracking_error = Math.min(
+      0.03,
+      metrics.tracking_error + tradeImpact * 0.0003
+    );
+    newMetrics.max_drawdown = Math.max(
+      -0.2,
+      metrics.max_drawdown - tradeImpact * 0.0005
+    );
 
-    
     if (newMetrics.tracking_error > 0.01) {
-      setPortfolio(newPortfolio);
-      setMetrics(newMetrics);
       setTradeResult({
         status: "rejected",
         reason: "Tracking Error breach (limit ≤ 1%)",
@@ -83,8 +86,6 @@ export default function PortfolioManager() {
       return;
     }
     if (newMetrics.sharpe < 0.5) {
-      setPortfolio(newPortfolio);
-      setMetrics(newMetrics);
       setTradeResult({
         status: "rejected",
         reason: "Sharpe ratio too low (min ≥ 0.5)",
@@ -92,8 +93,6 @@ export default function PortfolioManager() {
       return;
     }
     if (newMetrics.volatility > 0.15) {
-      setPortfolio(newPortfolio);
-      setMetrics(newMetrics);
       setTradeResult({
         status: "rejected",
         reason: "Volatility too high (limit ≤ 15%)",
@@ -101,8 +100,6 @@ export default function PortfolioManager() {
       return;
     }
     if (newMetrics.max_drawdown < -0.1) {
-      setPortfolio(newPortfolio);
-      setMetrics(newMetrics);
       setTradeResult({
         status: "rejected",
         reason: "Max Drawdown exceeded (limit ≥ -10%)",
@@ -110,12 +107,19 @@ export default function PortfolioManager() {
       return;
     }
 
-    
+    if (action === "BUY") {
+      holding.shares += tradeShares;
+    } else {
+      holding.shares = Math.max(0, holding.shares - tradeShares);
+    }
+
     setPortfolio(newPortfolio);
     setMetrics(newMetrics);
     setTradeResult({
       status: "approved",
-      reason: `You ${action === "BUY" ? "bought" : "sold"} ${tradeShares} shares of ${tradeTicker} for ${selectedPortfolio}`,
+      reason: `You ${
+        action === "BUY" ? "bought" : "sold"
+      } ${tradeShares} shares of ${tradeTicker} for ${selectedPortfolio}`,
     });
   }
 
@@ -124,7 +128,9 @@ export default function PortfolioManager() {
       <div className="max-w-6xl mx-auto space-y-6">
         {/* Portfolio Selection */}
         <section className="financial-card p-8 space-y-6 bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-lg">
-          <h2 className="text-xl font-semibold text-blue-900 border-b border-blue-200 pb-2">Select Portfolio</h2>
+          <h2 className="text-xl font-semibold text-blue-900 border-b border-blue-200 pb-2">
+            Select Portfolio
+          </h2>
           <select
             className="w-full border border-blue-200 rounded-lg p-3 bg-white/80 backdrop-blur-sm hover:border-blue-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200"
             value={selectedPortfolio}
@@ -145,26 +151,49 @@ export default function PortfolioManager() {
 
         {/* Current Holdings */}
         <section className="financial-card p-8 space-y-6 bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-lg">
-          <h2 className="text-xl font-semibold text-blue-900 border-b border-blue-200 pb-2">Current Holdings</h2>
+          <h2 className="text-xl font-semibold text-blue-900 border-b border-blue-200 pb-2">
+            Current Holdings
+          </h2>
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="text-blue-800 font-semibold">Ticker</TableHead>
-                  <TableHead className="text-blue-800 font-semibold">Shares</TableHead>
-                  <TableHead className="text-blue-800 font-semibold">Price ($)</TableHead>
-                  <TableHead className="text-blue-800 font-semibold">Value ($)</TableHead>
+                  <TableHead className="text-blue-800 font-semibold">
+                    Ticker
+                  </TableHead>
+                  <TableHead className="text-blue-800 font-semibold">
+                    Shares
+                  </TableHead>
+                  <TableHead className="text-blue-800 font-semibold">
+                    Price ($)
+                  </TableHead>
+                  <TableHead className="text-blue-800 font-semibold">
+                    Value ($)
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {Object.entries(portfolio).map(([ticker, { shares, price }]: any) => (
-                  <TableRow key={ticker} className="hover:bg-blue-50/50 transition-colors duration-200">
-                    <TableCell className="font-medium text-gray-800">{ticker}</TableCell>
-                    <TableCell className="text-gray-700">{shares.toFixed(2)}</TableCell>
-                    <TableCell className="text-gray-700">{price.toFixed(2)}</TableCell>
-                    <TableCell className="font-semibold text-blue-700">${(shares * price).toLocaleString()}</TableCell>
-                  </TableRow>
-                ))}
+                {Object.entries(portfolio).map(
+                  ([ticker, { shares, price }]: any) => (
+                    <TableRow
+                      key={ticker}
+                      className="hover:bg-blue-50/50 transition-colors duration-200"
+                    >
+                      <TableCell className="font-medium text-gray-800">
+                        {ticker}
+                      </TableCell>
+                      <TableCell className="text-gray-700">
+                        {shares.toFixed(2)}
+                      </TableCell>
+                      <TableCell className="text-gray-700">
+                        {price.toFixed(2)}
+                      </TableCell>
+                      <TableCell className="font-semibold text-blue-700">
+                        ${(shares * price).toLocaleString()}
+                      </TableCell>
+                    </TableRow>
+                  )
+                )}
               </TableBody>
             </Table>
           </div>
@@ -172,17 +201,27 @@ export default function PortfolioManager() {
 
         {/* Risk & Compliance Metrics */}
         <section className="financial-card p-8 space-y-6 bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-lg">
-          <h2 className="text-xl font-semibold text-blue-900 border-b border-blue-200 pb-2">Risk & Compliance Metrics</h2>
+          <h2 className="text-xl font-semibold text-blue-900 border-b border-blue-200 pb-2">
+            Risk & Compliance Metrics
+          </h2>
           <div className="grid md:grid-cols-2 gap-6">
             <div className="border border-blue-200 rounded-xl p-5 bg-white/80 backdrop-blur-sm hover:shadow-md transition-all duration-200 hover:border-blue-300">
-              <p className="text-sm text-blue-600 font-medium mb-1">Risk Management</p>
+              <p className="text-sm text-blue-600 font-medium mb-1">
+                Risk Management
+              </p>
               <p className="font-semibold text-gray-800 mb-2">Tracking Error</p>
-              <p className="text-blue-700 font-medium">{(metrics.tracking_error * 100).toFixed(2)}% (limit ≤ 1%)</p>
+              <p className="text-blue-700 font-medium">
+                {(metrics.tracking_error * 100).toFixed(2)}% (limit ≤ 1%)
+              </p>
             </div>
             <div className="border border-blue-200 rounded-xl p-5 bg-white/80 backdrop-blur-sm hover:shadow-md transition-all duration-200 hover:border-blue-300">
-              <p className="text-sm text-blue-600 font-medium mb-1">Performance</p>
+              <p className="text-sm text-blue-600 font-medium mb-1">
+                Performance
+              </p>
               <p className="font-semibold text-gray-800 mb-2">Sharpe Ratio</p>
-              <p className="text-blue-700 font-medium">{metrics.sharpe.toFixed(2)} (min ≥ 0.5)</p>
+              <p className="text-blue-700 font-medium">
+                {metrics.sharpe.toFixed(2)} (min ≥ 0.5)
+              </p>
             </div>
             {/* <div className="border border-blue-200 rounded-xl p-5 bg-white/80 backdrop-blur-sm hover:shadow-md transition-all duration-200 hover:border-blue-300">
               <p className="text-sm text-blue-600 font-medium mb-1">Risk Management</p>
@@ -195,13 +234,19 @@ export default function PortfolioManager() {
               <p className="text-blue-700 font-medium">{(metrics.max_drawdown * 100).toFixed(2)}% (limit ≥ -10%)</p>
             </div> */}
             <div className="border border-blue-200 rounded-xl p-5 bg-white/80 backdrop-blur-sm hover:shadow-md transition-all duration-200 hover:border-blue-300">
-              <p className="text-sm text-blue-600 font-medium mb-1">Compliance</p>
+              <p className="text-sm text-blue-600 font-medium mb-1">
+                Compliance
+              </p>
               <p className="font-semibold text-gray-800 mb-2">Trading Limit</p>
               <p className="text-blue-700 font-medium">4,000,000</p>
             </div>
             <div className="border border-blue-200 rounded-xl p-5 bg-white/80 backdrop-blur-sm hover:shadow-md transition-all duration-200 hover:border-blue-300">
-              <p className="text-sm text-blue-600 font-medium mb-1">Compliance</p>
-              <p className="font-semibold text-gray-800 mb-2">Report Frequency</p>
+              <p className="text-sm text-blue-600 font-medium mb-1">
+                Compliance
+              </p>
+              <p className="font-semibold text-gray-800 mb-2">
+                Report Frequency
+              </p>
               <p className="text-blue-700 font-medium">Daily</p>
             </div>
           </div>
@@ -209,10 +254,14 @@ export default function PortfolioManager() {
 
         {/* Trade Simulator */}
         <section className="financial-card p-8 space-y-6 bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-lg">
-          <h2 className="text-xl font-semibold text-blue-900 border-b border-blue-200 pb-2">Trade Simulator</h2>
+          <h2 className="text-xl font-semibold text-blue-900 border-b border-blue-200 pb-2">
+            Trade Simulator
+          </h2>
           <div className="grid md:grid-cols-3 gap-4 items-end">
             <div>
-              <label className="block text-sm font-medium text-blue-800 mb-2">Select Ticker</label>
+              <label className="block text-sm font-medium text-blue-800 mb-2">
+                Select Ticker
+              </label>
               <select
                 className="w-full h-12 border border-blue-200 rounded-lg px-3 py-3 bg-white/80 backdrop-blur-sm hover:border-blue-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200"
                 value={tradeTicker}
@@ -227,7 +276,9 @@ export default function PortfolioManager() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-blue-800 mb-2">Number of Shares</label>
+              <label className="block text-sm font-medium text-blue-800 mb-2">
+                Number of Shares
+              </label>
               <input
                 type="number"
                 placeholder="Enter shares"
@@ -273,6 +324,3 @@ export default function PortfolioManager() {
     </div>
   );
 }
-
-
-
